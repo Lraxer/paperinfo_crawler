@@ -1,0 +1,290 @@
+import bibtexparser.model
+import entry_ieee_conf
+import entry_acm_conf
+import entry_usenix_conf
+import dblp
+import bibtexparser
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from conf import user_agent, chromedriver_path, conf_pub_dict, pub_conf_dict
+import logging
+import argparse
+import pickle
+from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+# TODO Use FileHandler instead.
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+
+def collect_conf_metadata(
+    name: str,
+    year: str,
+    need_abstract: bool,
+    export_bib_path: str,
+    dblp_req_itv: float,
+    save_pickle: bool = False,
+) -> list:
+    entry_metadata_list = dblp.get_dblp_page_content(
+        dblp.get_conf_url(name, year), dblp_req_itv
+    )
+    logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
+    # print(len(entry_metadata_list))
+
+    if save_pickle:
+        pkl_filename = "{}{}_dblp.pkl".format(name, year)
+        logger.debug("Save collected dblp data to {}.".format(pkl_filename))
+        with open(pkl_filename, "wb") as f:
+            pickle.dump(entry_metadata_list, f)
+
+    if need_abstract:
+        collect_abstract(
+            name,
+            entry_metadata_list,
+            export_bib_path,
+            conf_pub_dict.get(name, "other"),
+            req_itv,
+        )
+
+    return entry_metadata_list
+
+
+def collect_abstract_impl(
+    entry_func,
+    library: bibtexparser.Library,
+    entry_metadata_list: list,
+    need_selenium: bool,
+    req_itv: float = 10,
+    driver=None,
+):
+    progress_abstract = tqdm(total=len(entry_metadata_list))
+    # for ieee papers
+    for entry_metadata in entry_metadata_list:
+        if need_selenium:
+            abstract = entry_func.get_full_abstract(entry_metadata[1], driver, req_itv)
+        else:
+            abstract = entry_func.get_full_abstract(entry_metadata[1], req_itv)
+        tmp_library = bibtexparser.parse_string(entry_metadata[2])
+        if abstract is not None:
+            abstract_field = bibtexparser.model.Field("abstract", abstract)
+            tmp_library.entries[0].set_field(abstract_field)
+        else:
+            logger.warning(
+                'Cannot collect abstract of paper "{}".'.format(entry_metadata[0])
+            )
+        library.add(tmp_library.blocks)
+        progress_abstract.update(1)
+
+    progress_abstract.close()
+    return library
+
+
+def collect_abstract(
+    name: str,
+    entry_metadata_list: list,
+    export_bib_path: str,
+    publisher: str,
+    req_itv: float = 10,
+):
+    library = bibtexparser.Library()
+
+    logger.debug("Publisher: {}.".format(publisher))
+
+    if publisher == "ieee":
+        # 设置headless浏览器选项
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--window-size=1920x1080")
+        # headless模式下需要改UA
+        chrome_options.add_argument("user-agent={}".format(user_agent))
+        # 创建一个新的Chrome浏览器实例
+        chrome_service = Service(chromedriver_path)
+        driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+
+        library = collect_abstract_impl(
+            entry_ieee_conf,
+            library,
+            entry_metadata_list,
+            need_selenium=True,
+            req_itv=req_itv,
+            driver=driver,
+        )
+
+        # 关闭浏览器
+        driver.quit()
+
+    elif publisher == "acm":
+        library = collect_abstract_impl(
+            entry_acm_conf,
+            library,
+            entry_metadata_list,
+            need_selenium=False,
+            req_itv=req_itv,
+        )
+    elif publisher == "usenix":
+        library = collect_abstract_impl(
+            entry_usenix_conf,
+            library,
+            entry_metadata_list,
+            need_selenium=False,
+            req_itv=req_itv,
+        )
+    elif publisher == "other":
+        logger.error("Not supported.")
+        return
+    else:
+        logger.error("Invalid publisher.")
+        return
+
+    logger.debug("entries in bibtex db: {}.".format(len(library.entries)))
+    # 由于bibtexparser.write_file暂时无法指定编码，只能先写入字符串后手动保存到文件，
+    # 参考 https://github.com/sciunto-org/python-bibtexparser/pull/405
+    bib_str = bibtexparser.write_string(library)
+    with open(export_bib_path, "w", encoding="utf-8") as f:
+        f.write(bib_str)
+
+
+def collect_abstract_from_dblp_pkl(
+    pkl_filename: str,
+    name: str,
+    export_bib_path: str,
+    req_itv: float,
+):
+    with open(pkl_filename, "rb") as f:
+        entry_metadata_list = pickle.load(f)
+    collect_abstract(
+        name,
+        entry_metadata_list,
+        export_bib_path,
+        conf_pub_dict.get(name, "other"),
+        req_itv,
+    )
+
+
+if __name__ == "__main__":
+    # collect_conf_metadata("sp", "2022", True, "./sp2022.bib")
+    # collect_conf_metadata("acsac", "2023", True, "./acsac2023.bib", 6)
+    # collect_conf_metadata("raid", "2023", True, "./raid2023.bib", 6)
+    # collect_conf_metadata("uss", "2023", True, "./uss2023.bib", 10)
+
+    parser = argparse.ArgumentParser(description="Collect paper metadata.")
+
+    # conference or journal
+    grp1 = parser.add_mutually_exclusive_group(required=True)
+
+    parser.add_argument("--name", "-n", type=str, required=True, help="会议/期刊标识")
+    grp1.add_argument(
+        "--year", "-y", type=str, default=None, help="会议举办时间（年）e.g. 2023"
+    )
+    grp1.add_argument("--volume", "-u", type=str, default=None, help="期刊卷号")
+    parser.add_argument("--publisher", "-p", type=str, default=None, help="指定出版社")
+    parser.add_argument(
+        "--save-pkl",
+        "-e",
+        action="store_true",
+        default=False,
+        help="是否将从dblp收集的元数据保存到pickle文件，默认名称为[name][year]_dblp.pkl",
+    )
+    parser.add_argument(
+        "--no-abs", action="store_true", default=False, help="是否从出版社网站收集摘要，设置此选项表示不收集摘要"
+    )
+    parser.add_argument(
+        "--from-pkl",
+        "-f",
+        type=str,
+        default=None,
+        help="从pickle加载dblp元数据，并收集摘要",
+    )
+    parser.add_argument(
+        "--dblp-interval",
+        "-d",
+        type=float,
+        default=10,
+        help="向dblp发送请求的间隔（秒）",
+    )
+    parser.add_argument(
+        "--interval", "-t", type=float, default=10, help="收集摘要的请求发送间隔（秒）"
+    )
+    # 保存不含摘要的bibtex不在设计意图内
+    parser.add_argument(
+        "--save",
+        "-s",
+        type=str,
+        default=None,
+        help="bibtex文件的保存位置，默认是[name][year].bib",
+    )
+
+    args = parser.parse_args()
+
+    if args.year is None:
+        # Journal
+        logger.error("Journal is not supported now.")
+    else:
+        # Conference
+        name = args.name
+        year = args.year
+
+        publisher = conf_pub_dict.get(args.name)
+        if args.publisher is not None:
+            if publisher is None:
+                print(
+                    "This conference has not tested yet. Setting `--save-pkl` is recommended."
+                )
+                conf_pub_dict[args.name] = args.publisher
+            elif publisher != args.publisher:
+                print("Input publisher cannot match.")
+                selection = input("Use pre-set publisher or your input? Input 1 or 2.")
+                if selection == "1":
+                    logger.debug("Use pre-set publisher.")
+                else:
+                    logger.debug("Use user input.")
+                    publisher = args.publisher
+        else:
+            if publisher is None:
+                print(
+                    "Cannot find this conference. Please specify publisher by -p or --publisher."
+                )
+                exit(1)
+
+        save_pkl = args.save_pkl
+        need_abs = not args.no_abs
+        from_pkl_fn = args.from_pkl
+
+        if need_abs is False and from_pkl_fn is not None:
+            print("--need-abs must be set with --from-pkl (-f).")
+            exit(1)
+
+        dblp_req_itv = args.dblp_interval
+        # 收集摘要的发送请求时间间隔
+        req_itv = args.interval
+
+        if args.save is None:
+            saved_fn = "{}{}.bib".format(name, year)
+        else:
+            saved_fn = args.save
+
+        if from_pkl_fn is None:
+            logger.debug(
+                "name:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+                    name,
+                    year,
+                    need_abs,
+                    saved_fn,
+                    dblp_req_itv,
+                    req_itv,
+                    save_pkl,
+                    from_pkl_fn,
+                )
+            )
+            collect_conf_metadata(
+                name, year, need_abs, saved_fn, dblp_req_itv, save_pkl
+            )
+        else:
+            logger.debug("Under development.")
+            collect_abstract_from_dblp_pkl(from_pkl_fn, name, saved_fn, req_itv)
