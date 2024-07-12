@@ -58,6 +58,10 @@ python ./main.py -n raid -y 2022
 
 - Python 3.9.7
 
+## 已知问题
+
+带有公式的摘要可能无法正确爬取，尤其是 Springer 的出版文献，公式是直接插入的SVG图片。
+
 ## TODO
 
 - [ ] Springer Conf
