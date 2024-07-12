@@ -168,11 +168,6 @@ def collect_abstract_from_dblp_pkl(
 
 
 if __name__ == "__main__":
-    # collect_conf_metadata("sp", "2022", True, "./sp2022.bib")
-    # collect_conf_metadata("acsac", "2023", True, "./acsac2023.bib", 6)
-    # collect_conf_metadata("raid", "2023", True, "./raid2023.bib", 6)
-    # collect_conf_metadata("uss", "2023", True, "./uss2023.bib", 10)
-
     parser = argparse.ArgumentParser(description="Collect paper metadata.")
 
     # conference or journal
