@@ -187,7 +187,10 @@ if __name__ == "__main__":
         help="是否将从dblp收集的元数据保存到pickle文件，默认名称为[name][year]_dblp.pkl",
     )
     parser.add_argument(
-        "--no-abs", action="store_true", default=False, help="是否从出版社网站收集摘要，设置此选项表示不收集摘要"
+        "--no-abs",
+        action="store_true",
+        default=False,
+        help="是否从出版社网站收集摘要，设置此选项表示不收集摘要",
     )
     parser.add_argument(
         "--from-pkl",
