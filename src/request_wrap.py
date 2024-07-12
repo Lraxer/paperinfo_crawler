@@ -1,0 +1,40 @@
+import requests
+import logging
+from time import sleep
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+
+# Decorator
+# Reference: https://kingname.info/2023/06/11/retry-in-requests/
+def retry(func):
+    def wrap(*args, **kwargs):
+        for _ in range(3):
+            try:
+                result = func(*args, **kwargs)
+                return result
+            except Exception as e:
+                logger.error(
+                    "Cannot access {}, Exception: {}. Retry after 30 sec.".format(
+                        args[1], e.__class__.__name__
+                    )
+                )
+                sleep(30)
+        return None
+
+    return wrap
+
+
+@retry
+def make_request(session: requests.Session, url: str, headers=None):
+    if headers is None:
+        res = session.get(url)
+    else:
+        res = session.get(url, headers=headers)
+    return res

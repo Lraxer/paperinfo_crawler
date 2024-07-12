@@ -5,6 +5,7 @@ import bs4
 from tqdm import tqdm
 from time import sleep
 import logging
+from request_wrap import make_request
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -66,10 +67,13 @@ def get_paper_title_and_url(entry: bs4.element.Tag) -> list:
     return [paper_title, paper_url]
 
 
-def get_paper_bibtex(entry: bs4.element.Tag, req_itv: float) -> str:
+def get_paper_bibtex(
+    bibtex_session: requests.Session, entry: bs4.element.Tag, req_itv: float
+) -> str:
     """获取bibtex格式的论文元数据
 
     Args:
+        bibtex_session (requests.Session): 复用会话，建立连接
         entry (bs4.element.Tag): 一篇论文经bs4解析后的的HTML代码片段
         req_itv (float): bibtex请求之间的时间间隔（秒）。
 
@@ -83,13 +87,16 @@ def get_paper_bibtex(entry: bs4.element.Tag, req_itv: float) -> str:
     if bibtex_url_tag is not None:
         bibtex_url = bibtex_url_tag["href"]
     else:
-        # TODO 错误处理
-        print("Cannot obtain bibtex URL.")
+        logger.error("Cannot obtain bibtex URL.")
         return None
 
     if bibtex_url is not None:
         sleep(req_itv)
-        bibtex_res = requests.get(bibtex_url)
+        # TODO 错误处理
+        bibtex_res = make_request(bibtex_session, bibtex_url)
+        if bibtex_res is None:
+            return None
+
         bibtex_soup = BeautifulSoup(bibtex_res.text, "html.parser")
         bibtex_content_tag = bibtex_soup.select_one(
             'div.section[id="bibtex-section"] > pre.verbatim.select-on-click'
@@ -98,7 +105,7 @@ def get_paper_bibtex(entry: bs4.element.Tag, req_itv: float) -> str:
             bibtex_str = bibtex_content_tag.get_text()
             return bibtex_str
     # TODO 错误处理
-    print("Cannot obtain bibtex content.")
+    logger.error("Cannot obtain bibtex content.")
     return None
 
 
@@ -123,12 +130,16 @@ def get_dblp_page_content(url: str, req_itv) -> list:
     entry_metadata_list = list()
 
     progress_dblp = tqdm(total=len(paper_entry))
+
+    bibtex_session = requests.Session()
     for entry in paper_entry:
         title_url_list = get_paper_title_and_url(entry)
-        bibtex_str = get_paper_bibtex(entry, req_itv)
+        bibtex_str = get_paper_bibtex(bibtex_session, entry, req_itv)
         entry_metadata_list.append(title_url_list + [bibtex_str])
 
         progress_dblp.update(1)
+
+    bibtex_session.close()
     progress_dblp.close()
 
     return entry_metadata_list

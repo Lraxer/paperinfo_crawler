@@ -3,6 +3,7 @@ from time import sleep
 from conf import req_headers
 from bs4 import BeautifulSoup
 import logging
+from request_wrap import make_request
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -13,7 +14,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_full_abstract(url: str, req_itv: float) -> str:
+def get_full_abstract(abs_session: requests.Session, url: str, req_itv: float) -> str:
     abstract = None
 
     if url == "":
@@ -21,7 +22,7 @@ def get_full_abstract(url: str, req_itv: float) -> str:
 
     sleep(req_itv)
 
-    res = requests.get(url, headers=req_headers)
+    res = make_request(abs_session, url, headers=req_headers)
     if res.status_code != 200:
         logger.warning(
             "Cannot access {}, status code: {}.".format(url, res.status_code)
@@ -37,5 +38,6 @@ def get_full_abstract(url: str, req_itv: float) -> str:
 
 
 if __name__ == "__main__":
-    abstract = get_full_abstract("https://doi.org/10.1145/3627106.3627193", 0)
-    print(abstract)
+    with requests.Session() as s:
+        abstract = get_full_abstract(s, "https://doi.org/10.1145/3627106.3627193", 0)
+        print(abstract)

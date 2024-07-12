@@ -12,6 +12,7 @@ import logging
 import argparse
 import pickle
 from tqdm import tqdm
+import requests
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -64,12 +65,15 @@ def collect_abstract_impl(
     driver=None,
 ):
     progress_abstract = tqdm(total=len(entry_metadata_list))
+    abs_session = requests.Session()
     # for ieee papers
     for entry_metadata in entry_metadata_list:
         if need_selenium:
             abstract = entry_func.get_full_abstract(entry_metadata[1], driver, req_itv)
         else:
-            abstract = entry_func.get_full_abstract(entry_metadata[1], req_itv)
+            abstract = entry_func.get_full_abstract(
+                abs_session, entry_metadata[1], req_itv
+            )
         tmp_library = bibtexparser.parse_string(entry_metadata[2])
         if abstract is not None:
             abstract_field = bibtexparser.model.Field("abstract", abstract)
@@ -81,6 +85,7 @@ def collect_abstract_impl(
         library.add(tmp_library.blocks)
         progress_abstract.update(1)
 
+    abs_session.close()
     progress_abstract.close()
     return library
 
