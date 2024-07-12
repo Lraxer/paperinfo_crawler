@@ -13,6 +13,7 @@
 | USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`   | `usenix`   | ✔️     |
 | Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`  | `ndss`     | ✔️     |
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac` | `acm`      | ✔️     |
+| IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`  | `ieee`     | ✔️     |
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`  | `acm`      | ✔️     |
 
 ## 安装
