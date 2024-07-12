@@ -272,22 +272,22 @@ if __name__ == "__main__":
         else:
             saved_fn = args.save
 
-        if from_pkl_fn is None:
-            logger.debug(
-                "name:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
-                    name,
-                    year,
-                    need_abs,
-                    saved_fn,
-                    dblp_req_itv,
-                    req_itv,
-                    save_pkl,
-                    from_pkl_fn,
-                )
+        logger.debug(
+            "name:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+                name,
+                year,
+                need_abs,
+                saved_fn,
+                dblp_req_itv,
+                req_itv,
+                save_pkl,
+                from_pkl_fn,
             )
+        )
+        if from_pkl_fn is None:
             collect_conf_metadata(
                 name, year, need_abs, saved_fn, dblp_req_itv, save_pkl
             )
         else:
-            logger.debug("Under development.")
+            logger.debug("Collect abstract from dblp pickle file.")
             collect_abstract_from_dblp_pkl(from_pkl_fn, name, saved_fn, req_itv)
