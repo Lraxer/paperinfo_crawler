@@ -26,7 +26,11 @@ def get_conf_url(name: str, year: str) -> str:
     Returns:
         str: dblp URL
     """
-    conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
+    if name == "csfw" and year == "2023":
+        # csfw 2023会议URL特殊：csfw/csf[year].html
+        conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name[:-1], year)
+    else:
+        conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
 
     logger.debug("Request URL: {}.".format(conf_url))
 

@@ -20,6 +20,7 @@ req_headers = {
 # conference -> publisher
 conf_pub_dict = {
     "sp": "ieee",
+    "csfw": "ieee",
     "acsac": "acm",
     "ccs": "acm",
     "raid": "acm",
@@ -28,7 +29,7 @@ conf_pub_dict = {
 }
 # publisher -> conference
 pub_conf_dict = {
-    "ieee": {"sp"},
+    "ieee": {"sp", "csfw"},
     "acm": {"acsac", "ccs", "raid"},
     "usenix": {"uss"},
     "ndss": {"ndss"},
