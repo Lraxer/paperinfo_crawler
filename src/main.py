@@ -260,7 +260,7 @@ if __name__ == "__main__":
         from_pkl_fn = args.from_pkl
 
         if need_abs is False and from_pkl_fn is not None:
-            print("--need-abs must be set with --from-pkl (-f).")
+            print("--no-abs cannot be set while using --from-pkl (-f).")
             exit(1)
 
         dblp_req_itv = args.dblp_interval
