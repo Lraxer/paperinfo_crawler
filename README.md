@@ -9,6 +9,7 @@
 | 名称                                                                           | 类型         | 标识    | 已测试 |
 | ------------------------------------------------------------------------------ | ------------ | ------- | ------ |
 | IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`    | ✔️     |
+| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`   | ✔️     |
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac` | ✔️     |
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`  | ✔️     |
 
