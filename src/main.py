@@ -2,6 +2,7 @@ import bibtexparser.model
 import entry_ieee_conf
 import entry_acm_conf
 import entry_usenix_conf
+import entry_ndss_conf
 import dblp
 import bibtexparser
 from selenium import webdriver
@@ -22,6 +23,14 @@ handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+
+publisher_module_dict = {
+    "ieee": entry_ieee_conf,
+    "acm": entry_acm_conf,
+    "usenix": entry_usenix_conf,
+    "ndss": entry_ndss_conf,
+}
 
 
 def collect_conf_metadata(
@@ -123,29 +132,22 @@ def collect_abstract(
 
         # 关闭浏览器
         driver.quit()
-
-    elif publisher == "acm":
-        library = collect_abstract_impl(
-            entry_acm_conf,
-            library,
-            entry_metadata_list,
-            need_selenium=False,
-            req_itv=req_itv,
-        )
-    elif publisher == "usenix":
-        library = collect_abstract_impl(
-            entry_usenix_conf,
-            library,
-            entry_metadata_list,
-            need_selenium=False,
-            req_itv=req_itv,
-        )
     elif publisher == "other":
         logger.error("Not supported.")
         return
     else:
-        logger.error("Invalid publisher.")
-        return
+        selected_module = publisher_module_dict.get(publisher)
+        if selected_module is not None:
+            library = collect_abstract_impl(
+                selected_module,
+                library,
+                entry_metadata_list,
+                need_selenium=False,
+                req_itv=req_itv,
+            )
+        else:
+            logger.error("Invalid publisher.")
+            return
 
     logger.debug("entries in bibtex db: {}.".format(len(library.entries)))
     # 由于bibtexparser.write_file暂时无法指定编码，只能先写入字符串后手动保存到文件，
@@ -260,7 +262,7 @@ if __name__ == "__main__":
         from_pkl_fn = args.from_pkl
 
         if need_abs is False and from_pkl_fn is not None:
-            print("--need-abs must be set with --from-pkl (-f).")
+            print("--no-abs cannot be set while using --from-pkl (-f).")
             exit(1)
 
         dblp_req_itv = args.dblp_interval
@@ -272,22 +274,22 @@ if __name__ == "__main__":
         else:
             saved_fn = args.save
 
-        if from_pkl_fn is None:
-            logger.debug(
-                "name:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
-                    name,
-                    year,
-                    need_abs,
-                    saved_fn,
-                    dblp_req_itv,
-                    req_itv,
-                    save_pkl,
-                    from_pkl_fn,
-                )
+        logger.debug(
+            "name:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+                name,
+                year,
+                need_abs,
+                saved_fn,
+                dblp_req_itv,
+                req_itv,
+                save_pkl,
+                from_pkl_fn,
             )
+        )
+        if from_pkl_fn is None:
             collect_conf_metadata(
                 name, year, need_abs, saved_fn, dblp_req_itv, save_pkl
             )
         else:
-            logger.debug("Under development.")
+            logger.debug("Collect abstract from dblp pickle file.")
             collect_abstract_from_dblp_pkl(from_pkl_fn, name, saved_fn, req_itv)
