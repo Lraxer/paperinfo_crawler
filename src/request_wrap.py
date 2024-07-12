@@ -21,11 +21,11 @@ def retry(func):
                 return result
             except Exception as e:
                 logger.error(
-                    "Cannot access {}, Exception: {}. Retry after 30 sec.".format(
+                    "Cannot access {}, Exception: {}. Retry after 15 sec.".format(
                         args[1], e.__class__.__name__
                     )
                 )
-                sleep(30)
+                sleep(15)
         return None
 
     return wrap
