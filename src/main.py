@@ -12,6 +12,7 @@ import logging
 import argparse
 import pickle
 from tqdm import tqdm
+import requests
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -64,12 +65,15 @@ def collect_abstract_impl(
     driver=None,
 ):
     progress_abstract = tqdm(total=len(entry_metadata_list))
+    abs_session = requests.Session()
     # for ieee papers
     for entry_metadata in entry_metadata_list:
         if need_selenium:
             abstract = entry_func.get_full_abstract(entry_metadata[1], driver, req_itv)
         else:
-            abstract = entry_func.get_full_abstract(entry_metadata[1], req_itv)
+            abstract = entry_func.get_full_abstract(
+                abs_session, entry_metadata[1], req_itv
+            )
         tmp_library = bibtexparser.parse_string(entry_metadata[2])
         if abstract is not None:
             abstract_field = bibtexparser.model.Field("abstract", abstract)
@@ -81,6 +85,7 @@ def collect_abstract_impl(
         library.add(tmp_library.blocks)
         progress_abstract.update(1)
 
+    abs_session.close()
     progress_abstract.close()
     return library
 
@@ -168,11 +173,6 @@ def collect_abstract_from_dblp_pkl(
 
 
 if __name__ == "__main__":
-    # collect_conf_metadata("sp", "2022", True, "./sp2022.bib")
-    # collect_conf_metadata("acsac", "2023", True, "./acsac2023.bib", 6)
-    # collect_conf_metadata("raid", "2023", True, "./raid2023.bib", 6)
-    # collect_conf_metadata("uss", "2023", True, "./uss2023.bib", 10)
-
     parser = argparse.ArgumentParser(description="Collect paper metadata.")
 
     # conference or journal
@@ -192,7 +192,10 @@ if __name__ == "__main__":
         help="是否将从dblp收集的元数据保存到pickle文件，默认名称为[name][year]_dblp.pkl",
     )
     parser.add_argument(
-        "--no-abs", action="store_true", default=False, help="是否从出版社网站收集摘要，设置此选项表示不收集摘要"
+        "--no-abs",
+        action="store_true",
+        default=False,
+        help="是否从出版社网站收集摘要，设置此选项表示不收集摘要",
     )
     parser.add_argument(
         "--from-pkl",
