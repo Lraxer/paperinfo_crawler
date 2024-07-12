@@ -6,12 +6,14 @@
 
 **包含摘要的 bibtex 文件可以从 [这里](https://github.com/Lraxer/paper_metadata) 获取。**
 
-| 名称                                                                           | 类型         | 标识    | 已测试 |
-| ------------------------------------------------------------------------------ | ------------ | ------- | ------ |
-| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`    | ✔️     |
-| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`   | ✔️     |
-| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac` | ✔️     |
-| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`  | ✔️     |
+| 名称                                                                           | 类型         | 标识    | 出版社标识 | 已测试 |
+| ------------------------------------------------------------------------------ | ------------ | ------- | ---------- | ------ |
+| Annual ACM Conference on Computer and Communications Security (CCS)            | 会议 (CCF-A) | `ccs`   | `acm`      | ✔️     |
+| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`    | `ieee`     | ✔️     |
+| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`   | `usenix`   | ✔️     |
+| Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`  | `ndss`     | ✔️     |
+| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac` | `acm`      | ✔️     |
+| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`  | `acm`      | ✔️     |
 
 ## 安装
 
@@ -57,7 +59,7 @@ python ./main.py -n raid -y 2022
 
 ## TODO
 
-- [ ] NDSS
+- [ ] Springer Conf
 - [ ] 期刊
 - [ ] UI
 

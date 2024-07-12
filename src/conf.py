@@ -18,6 +18,18 @@ req_headers = {
 
 
 # conference -> publisher
-conf_pub_dict = {"sp": "ieee", "acsac": "acm", "raid": "acm", "uss": "usenix"}
+conf_pub_dict = {
+    "sp": "ieee",
+    "acsac": "acm",
+    "ccs": "acm",
+    "raid": "acm",
+    "uss": "usenix",
+    "ndss": "ndss",
+}
 # publisher -> conference
-pub_conf_dict = {"ieee": {"sp"}, "acm": {"acsac", "raid"}, "usenix": {"uss"}}
+pub_conf_dict = {
+    "ieee": {"sp"},
+    "acm": {"acsac", "ccs", "raid"},
+    "usenix": {"uss"},
+    "ndss": {"ndss"},
+}
