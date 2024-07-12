@@ -115,6 +115,8 @@ def collect_abstract(
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=1920x1080")
+        # 使 selenium 只输出wanrning及以上的日志信息
+        chrome_options.add_argument("log-level=1")
         # headless模式下需要改UA
         chrome_options.add_argument("user-agent={}".format(user_agent))
         # 创建一个新的Chrome浏览器实例
