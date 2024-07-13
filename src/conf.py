@@ -24,6 +24,7 @@ conf_pub_dict = {
     "acsac": "acm",
     "ccs": "acm",
     "raid": "acm",
+    "icics": "springer",
     "uss": "usenix",
     "ndss": "ndss",
 }
@@ -31,6 +32,7 @@ conf_pub_dict = {
 pub_conf_dict = {
     "ieee": {"sp", "csfw"},
     "acm": {"acsac", "ccs", "raid"},
+    "springer": {"icics"},
     "usenix": {"uss"},
     "ndss": {"ndss"},
 }

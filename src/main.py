@@ -3,6 +3,7 @@ import entry_ieee_conf
 import entry_acm_conf
 import entry_usenix_conf
 import entry_ndss_conf
+import entry_springer_conf
 import dblp
 import bibtexparser
 from selenium import webdriver
@@ -28,6 +29,7 @@ logger.addHandler(handler)
 publisher_module_dict = {
     "ieee": entry_ieee_conf,
     "acm": entry_acm_conf,
+    "springer": entry_springer_conf,
     "usenix": entry_usenix_conf,
     "ndss": entry_ndss_conf,
 }
