@@ -2,20 +2,21 @@
 
 **注意，本项目不会下载论文，仅获取包括摘要在内的论文元数据。**
 
-## 当前支持的会议/期刊
+## 当前确认支持的会议/期刊
 
 **包含摘要的 bibtex 文件可以从 [这里](https://github.com/Lraxer/paper_metadata) 获取。**
 
-| 名称                                                                           | 类型         | 标识    | 出版社标识 | 已测试 |
-| ------------------------------------------------------------------------------ | ------------ | ------- | ---------- | ------ |
-| Annual ACM Conference on Computer and Communications Security (CCS)            | 会议 (CCF-A) | `ccs`   | `acm`      | ✔️     |
-| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`    | `ieee`     | ✔️     |
-| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`   | `usenix`   | ✔️     |
-| Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`  | `ndss`     | ✔️     |
-| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac` | `acm`      | ✔️     |
-| IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`  | `ieee`     | ✔️     |
-| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`  | `acm`      | ✔️     |
-| International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics` | `springer` | ✔️     |
+| 名称                                                                           | 类型         | 标识     | 出版社标识 | 已测试 |
+| ------------------------------------------------------------------------------ | ------------ | -------- | ---------- | ------ |
+| Annual ACM Conference on Computer and Communications Security (CCS)            | 会议 (CCF-A) | `ccs`    | `acm`      | ✔️     |
+| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`     | `ieee`     | ✔️     |
+| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`    | `usenix`   | ✔️     |
+| Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`   | `ndss`     | ✔️     |
+| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`  | `acm`      | ✔️     |
+| IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`   | `ieee`     | ✔️     |
+| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`   | `acm`      | ✔️     |
+| IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp` | `ieee`     | ✔️     |
+| International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`  | `springer` | ✔️     |
 
 ## 安装
 
