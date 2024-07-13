@@ -29,11 +29,13 @@ def get_full_abstract(abs_session: requests.Session, url: str, req_itv: float) -
         )
     else:
         abs_soup = BeautifulSoup(res.text, "html.parser")
-        abs_tag = abs_soup.select_one(
+        abs_tags = abs_soup.select(
             'div.core-container > section[id="abstract"] > div[role="paragraph"]'
         )
-        if abs_tag is not None:
-            abstract = abs_tag.get_text()
+        if abs_tags != []:
+            abstract = " ".join(
+                [abs_tag.get_text() for abs_tag in abs_tags if abs_tag.get_text() != ""]
+            )
     return abstract
 
 
