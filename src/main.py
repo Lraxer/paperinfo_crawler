@@ -8,7 +8,7 @@ import bibtexparser
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from conf import user_agent, chromedriver_path, conf_pub_dict, pub_conf_dict
+from conf import user_agent, chromedriver_path, conf_pub_dict
 import logging
 import argparse
 import pickle
