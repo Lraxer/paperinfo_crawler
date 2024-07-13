@@ -15,6 +15,7 @@
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac` | `acm`      | ✔️     |
 | IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`  | `ieee`     | ✔️     |
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`  | `acm`      | ✔️     |
+| International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics` | `springer` | ✔️     |
 
 ## 安装
 
@@ -58,12 +59,18 @@ python ./main.py -n raid -y 2022
 
 - Python 3.9.7
 
+## 已知问题
+
+部分带有公式的论文摘要可能无法正确爬取。
+
 ## TODO
 
-- [ ] Springer Conf
 - [ ] 期刊
 - [ ] UI
+
+---
 
 - [x] 命令行
 - [x] 保存 dblp 检索结果到 pkl
 - [x] 进度条
+- [x] Springer Conf

@@ -3,12 +3,13 @@ import entry_ieee_conf
 import entry_acm_conf
 import entry_usenix_conf
 import entry_ndss_conf
+import entry_springer_conf
 import dblp
 import bibtexparser
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from conf import user_agent, chromedriver_path, conf_pub_dict, pub_conf_dict
+from conf import user_agent, chromedriver_path, conf_pub_dict
 import logging
 import argparse
 import pickle
@@ -28,6 +29,7 @@ logger.addHandler(handler)
 publisher_module_dict = {
     "ieee": entry_ieee_conf,
     "acm": entry_acm_conf,
+    "springer": entry_springer_conf,
     "usenix": entry_usenix_conf,
     "ndss": entry_ndss_conf,
 }
