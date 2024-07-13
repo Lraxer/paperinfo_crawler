@@ -87,7 +87,7 @@ def collect_abstract_impl(
             )
         tmp_library = bibtexparser.parse_string(entry_metadata[2])
         if abstract is not None:
-            abstract_field = bibtexparser.model.Field("abstract", repr(abstract))
+            abstract_field = bibtexparser.model.Field("abstract", repr(abstract)[1:-1])
             tmp_library.entries[0].set_field(abstract_field)
         else:
             logger.warning(
