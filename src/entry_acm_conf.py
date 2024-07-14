@@ -1,9 +1,7 @@
 import requests
-from time import sleep
-from conf import req_headers
-from bs4 import BeautifulSoup
 import logging
-from request_wrap import make_request
+from get_abstract_base import get_abstract_base
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -15,27 +13,9 @@ logger.addHandler(handler)
 
 
 def get_full_abstract(abs_session: requests.Session, url: str, req_itv: float) -> str:
-    abstract = None
+    css_selector = "div.core-container > section[id='abstract'] > div[role='paragraph']"
 
-    if url == "":
-        return None
-
-    sleep(req_itv)
-
-    res = make_request(abs_session, url, headers=req_headers)
-    if res.status_code != 200:
-        logger.warning(
-            "Cannot access {}, status code: {}.".format(url, res.status_code)
-        )
-    else:
-        abs_soup = BeautifulSoup(res.text, "html.parser")
-        abs_tags = abs_soup.select(
-            'div.core-container > section[id="abstract"] > div[role="paragraph"]'
-        )
-        if abs_tags != []:
-            abstract = " ".join(
-                [abs_tag.get_text() for abs_tag in abs_tags if abs_tag.get_text() != ""]
-            )
+    abstract = get_abstract_base(abs_session, url, req_itv, css_selector)
     return abstract
 
 
