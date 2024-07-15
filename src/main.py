@@ -9,7 +9,7 @@ import bibtexparser
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from settings import user_agent, chromedriver_path, conf_pub_dict
+from settings import user_agent, chromedriver_path, cj_pub_dict
 import logging
 import argparse
 import pickle
@@ -59,7 +59,7 @@ def collect_conf_metadata(
             name,
             entry_metadata_list,
             export_bib_path,
-            conf_pub_dict.get(name, "other"),
+            cj_pub_dict.get(name, "other"),
             req_itv,
         )
 
@@ -90,7 +90,7 @@ def collect_journal_metadata(
             name,
             entry_metadata_list,
             export_bib_path,
-            conf_pub_dict.get(name, "other"),
+            cj_pub_dict.get(name, "other"),
             req_itv,
         )
 
@@ -203,7 +203,7 @@ def collect_abstract_from_dblp_pkl(
         name,
         entry_metadata_list,
         export_bib_path,
-        conf_pub_dict.get(name, "other"),
+        cj_pub_dict.get(name, "other"),
         req_itv,
     )
 
@@ -270,13 +270,13 @@ if __name__ == "__main__":
 
     name = args.name
 
-    publisher = conf_pub_dict.get(args.name)
+    publisher = cj_pub_dict.get(args.name)
     if args.publisher is not None:
         if publisher is None:
             print(
                 "This conference has not tested yet. Setting `--save-pkl` is recommended."
             )
-            conf_pub_dict[args.name] = args.publisher
+            cj_pub_dict[args.name] = args.publisher
         elif publisher != args.publisher:
             print("Input publisher cannot match.")
             selection = input("Use pre-set publisher or your input? Input 1 or 2.")

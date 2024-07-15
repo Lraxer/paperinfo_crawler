@@ -17,8 +17,8 @@ req_headers = {
 }
 
 
-# conference -> publisher
-conf_pub_dict = {
+# conference/journal -> publisher
+cj_pub_dict = {
     "sp": "ieee",
     "csfw": "ieee",
     "eurosp": "ieee",
@@ -29,8 +29,8 @@ conf_pub_dict = {
     "uss": "usenix",
     "ndss": "ndss",
 }
-# publisher -> conference
-pub_conf_dict = {
+# publisher -> conference/journal
+pub_cj_dict = {
     "ieee": {"sp", "csfw", "eurosp"},
     "acm": {"acsac", "ccs", "raid"},
     "springer": {"icics"},
