@@ -1,6 +1,6 @@
 import requests
 from time import sleep
-from conf import req_headers
+from settings import req_headers
 from bs4 import BeautifulSoup
 import logging
 from request_wrap import make_request

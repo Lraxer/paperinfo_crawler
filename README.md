@@ -20,7 +20,7 @@
 
 ## 安装
 
-为了稳定运行 selenium，建议下载 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，并在 `conf.py` 中修改 `chromedriver_path`。
+为了稳定运行 selenium，建议下载 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，并在 `settings.py` 中修改 `chromedriver_path`。
 
 ```powershell
 # For Windows

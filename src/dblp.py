@@ -1,5 +1,5 @@
 import requests
-from conf import *
+from settings import dblp_url
 from bs4 import BeautifulSoup
 import bs4
 from tqdm import tqdm
@@ -32,9 +32,17 @@ def get_conf_url(name: str, year: str) -> str:
     else:
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
 
-    logger.debug("Request URL: {}.".format(conf_url))
+    logger.debug("Request URL: {} .".format(conf_url))
 
     return conf_url
+
+
+def get_journal_url(name: str, volume: str) -> str:
+    journal_url = "{}journals/{}/{}{}.html".format(dblp_url, name, name, volume)
+
+    logger.debug("Request URL: {} .".format(journal_url))
+
+    return journal_url
 
 
 def get_paper_title_and_url(entry: bs4.element.Tag) -> list:
@@ -113,12 +121,13 @@ def get_paper_bibtex(
     return None
 
 
-def get_dblp_page_content(url: str, req_itv) -> list:
+def get_dblp_page_content(url: str, req_itv, type: str) -> list:
     """获取页面中的论文网址
 
     Args:
         url (str): 期刊/会议某一期/某一年的URL。e.g. https://dblp.org/db/conf/sp/sp2023.html
         req_itv (float): bibtex请求之间的时间间隔（秒）。
+        type (str): 爬取的论文类型。会议或期刊，"conf" or "journal"。
 
     Returns:
         list: [论文标题, 每篇论文的 doi.org URL, 不含摘要的bibtex字符串]。e.g. [WeRLman: To Tackle Whale (Transactions), Go Deep (RL), https://doi.org/10.1109/SP46215.2023.10179444, @inproceedings...]
@@ -128,9 +137,17 @@ def get_dblp_page_content(url: str, req_itv) -> list:
         print("{} cannot be loaded. Make sure your input is valid.".format(url))
         return
     soup = BeautifulSoup(res.text, "html.parser")
-    paper_entry = soup.select(
-        'li.entry.inproceedings[itemscope][itemtype="http://schema.org/ScholarlyArticle"]'
-    )
+    if type == "conf":
+        paper_entry = soup.select(
+            'li.entry.inproceedings[itemscope][itemtype="http://schema.org/ScholarlyArticle"]'
+        )
+    elif type == "journal":
+        paper_entry = soup.select(
+            'li.entry.article[itemscope][itemtype="http://schema.org/ScholarlyArticle"]'
+        )
+    else:
+        logger.error('Invalid type param. Should be "conf" or "journal"')
+
     entry_metadata_list = list()
 
     progress_dblp = tqdm(total=len(paper_entry))
@@ -150,5 +167,5 @@ def get_dblp_page_content(url: str, req_itv) -> list:
 
 
 if __name__ == "__main__":
-    metadata_list = get_dblp_page_content(get_conf_url("sp", str(2023)), 5)
+    metadata_list = get_dblp_page_content(get_conf_url("sp", str(2023)), 5, "conf")
     # print(title_url_lst)
