@@ -32,7 +32,7 @@ def get_conf_url(name: str, year: str) -> str:
     else:
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
 
-    logger.debug("Request URL: {} .".format(conf_url))
+    logger.debug("Request URL: {}".format(conf_url))
 
     return conf_url
 
@@ -40,7 +40,7 @@ def get_conf_url(name: str, year: str) -> str:
 def get_journal_url(name: str, volume: str) -> str:
     journal_url = "{}journals/{}/{}{}.html".format(dblp_url, name, name, volume)
 
-    logger.debug("Request URL: {} .".format(journal_url))
+    logger.debug("Request URL: {}".format(journal_url))
 
     return journal_url
 
