@@ -1,15 +1,15 @@
 import bibtexparser.model
-import entry_ieee_conf
-import entry_acm_conf
-import entry_usenix_conf
-import entry_ndss_conf
-import entry_springer_conf
+import entry_ieee as entry_ieee
+import entry_acm as entry_acm
+import entry_usenix as entry_usenix
+import entry_ndss as entry_ndss
+import entry_springer as entry_springer
 import dblp
 import bibtexparser
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from conf import user_agent, chromedriver_path, conf_pub_dict
+from settings import user_agent, chromedriver_path, conf_pub_dict
 import logging
 import argparse
 import pickle
@@ -27,11 +27,11 @@ logger.addHandler(handler)
 
 
 publisher_module_dict = {
-    "ieee": entry_ieee_conf,
-    "acm": entry_acm_conf,
-    "springer": entry_springer_conf,
-    "usenix": entry_usenix_conf,
-    "ndss": entry_ndss_conf,
+    "ieee": entry_ieee,
+    "acm": entry_acm,
+    "springer": entry_springer,
+    "usenix": entry_usenix,
+    "ndss": entry_ndss,
 }
 
 
@@ -41,16 +41,46 @@ def collect_conf_metadata(
     need_abstract: bool,
     export_bib_path: str,
     dblp_req_itv: float,
-    save_pickle: bool = False,
+    save_pickle: bool,
 ) -> list:
     entry_metadata_list = dblp.get_dblp_page_content(
-        dblp.get_conf_url(name, year), dblp_req_itv
+        dblp.get_conf_url(name, year), dblp_req_itv, "conf"
     )
     logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
-    # print(len(entry_metadata_list))
 
     if save_pickle:
         pkl_filename = "{}{}_dblp.pkl".format(name, year)
+        logger.debug("Save collected dblp data to {}.".format(pkl_filename))
+        with open(pkl_filename, "wb") as f:
+            pickle.dump(entry_metadata_list, f)
+
+    if need_abstract:
+        collect_abstract(
+            name,
+            entry_metadata_list,
+            export_bib_path,
+            conf_pub_dict.get(name, "other"),
+            req_itv,
+        )
+
+    return entry_metadata_list
+
+
+def collect_journal_metadata(
+    name: str,
+    volume: str,
+    need_abstract: bool,
+    export_bib_path: str,
+    dblp_req_itv: float,
+    save_pickle: bool,
+) -> list:
+    entry_metadata_list = dblp.get_dblp_page_content(
+        dblp.get_journal_url(name, volume), dblp_req_itv, "journal"
+    )
+    logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
+
+    if save_pickle:
+        pkl_filename = "{}{}_dblp.pkl".format(name, volume)
         logger.debug("Save collected dblp data to {}.".format(pkl_filename))
         with open(pkl_filename, "wb") as f:
             pickle.dump(entry_metadata_list, f)
@@ -126,7 +156,7 @@ def collect_abstract(
         driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
         library = collect_abstract_impl(
-            entry_ieee_conf,
+            entry_ieee,
             library,
             entry_metadata_list,
             need_selenium=True,
@@ -181,21 +211,28 @@ def collect_abstract_from_dblp_pkl(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Collect paper metadata.")
 
+    parser.add_argument("--name", "-n", type=str, required=True, help="会议/期刊标识")
+
     # conference or journal
     grp1 = parser.add_mutually_exclusive_group(required=True)
-
-    parser.add_argument("--name", "-n", type=str, required=True, help="会议/期刊标识")
     grp1.add_argument(
         "--year", "-y", type=str, default=None, help="会议举办时间（年）e.g. 2023"
     )
-    grp1.add_argument("--volume", "-u", type=str, default=None, help="期刊卷号")
+    grp1.add_argument(
+        "--volume",
+        "-u",
+        type=str,
+        default=None,
+        help="期刊卷号，格式为单个数字，或要爬取的起止卷号，以短横线连接。e.g. 72-79",
+    )
+
     parser.add_argument("--publisher", "-p", type=str, default=None, help="指定出版社")
     parser.add_argument(
         "--save-pkl",
         "-e",
         action="store_true",
         default=False,
-        help="是否将从dblp收集的元数据保存到pickle文件，默认名称为[name][year]_dblp.pkl",
+        help="是否将从dblp收集的元数据保存到pickle文件，默认名称为[name][year/volume]_dblp.pkl, 对于期刊，该选项只支持volume为数字的输入（e.g. -u 72），不支持多卷的输入（e.g. -u 72-79）",
     )
     parser.add_argument(
         "--no-abs",
@@ -226,52 +263,106 @@ if __name__ == "__main__":
         "-s",
         type=str,
         default=None,
-        help="bibtex文件的保存位置，默认是[name][year].bib",
+        help="bibtex文件的保存位置，默认是[name][year].bib, 对于期刊，该选项只支持volume为数字的输入（e.g. -u 72），不支持多卷的输入（e.g. -u 72-79）",
     )
 
     args = parser.parse_args()
 
-    if args.year is None:
-        # Journal
-        logger.error("Journal is not supported now.")
+    name = args.name
+
+    publisher = conf_pub_dict.get(args.name)
+    if args.publisher is not None:
+        if publisher is None:
+            print(
+                "This conference has not tested yet. Setting `--save-pkl` is recommended."
+            )
+            conf_pub_dict[args.name] = args.publisher
+        elif publisher != args.publisher:
+            print("Input publisher cannot match.")
+            selection = input("Use pre-set publisher or your input? Input 1 or 2.")
+            if selection == "1":
+                logger.debug("Use pre-set publisher.")
+            else:
+                logger.debug("Use user input.")
+                publisher = args.publisher
     else:
-        # Conference
-        name = args.name
-        year = args.year
-
-        publisher = conf_pub_dict.get(args.name)
-        if args.publisher is not None:
-            if publisher is None:
-                print(
-                    "This conference has not tested yet. Setting `--save-pkl` is recommended."
-                )
-                conf_pub_dict[args.name] = args.publisher
-            elif publisher != args.publisher:
-                print("Input publisher cannot match.")
-                selection = input("Use pre-set publisher or your input? Input 1 or 2.")
-                if selection == "1":
-                    logger.debug("Use pre-set publisher.")
-                else:
-                    logger.debug("Use user input.")
-                    publisher = args.publisher
-        else:
-            if publisher is None:
-                print(
-                    "Cannot find this conference. Please specify publisher by -p or --publisher."
-                )
-                exit(1)
-
-        save_pkl = args.save_pkl
-        need_abs = not args.no_abs
-        from_pkl_fn = args.from_pkl
-
-        if need_abs is False and from_pkl_fn is not None:
-            print("--no-abs cannot be set while using --from-pkl (-f).")
+        if publisher is None:
+            print(
+                "Cannot find this conference. Please specify publisher by -p or --publisher."
+            )
             exit(1)
 
-        dblp_req_itv = args.dblp_interval
-        # 收集摘要的发送请求时间间隔
-        req_itv = args.interval
+    save_pkl = args.save_pkl
+    need_abs = not args.no_abs
+    from_pkl_fn = args.from_pkl
+
+    if need_abs is False and from_pkl_fn is not None:
+        print("--no-abs cannot be set while using --from-pkl (-f).")
+        exit(1)
+
+    dblp_req_itv = args.dblp_interval
+    # 收集摘要的发送请求时间间隔
+    req_itv = args.interval
+
+    if args.year is None:
+        # Journal
+        volume: str = args.volume
+
+        if args.save is None:
+            saved_fn = "{}{}.bib".format(name, volume)
+        else:
+            saved_fn = args.save
+
+        logger.debug(
+            "name:{}\nvolume:{}\nneed_abs:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+                name,
+                volume,
+                need_abs,
+                dblp_req_itv,
+                req_itv,
+                save_pkl,
+                from_pkl_fn,
+            )
+        )
+        # format: 19
+        if volume.isdigit():
+            if args.save is None:
+                saved_fn = "{}{}.bib".format(name, volume)
+            else:
+                saved_fn = args.save
+            logger.debug("saved_fn:{}".format(saved_fn))
+            if from_pkl_fn is None:
+                collect_journal_metadata(
+                    name, volume, need_abs, saved_fn, dblp_req_itv, save_pkl
+                )
+                exit(0)
+            else:
+                collect_abstract_from_dblp_pkl(from_pkl_fn, name, saved_fn, req_itv)
+                exit(0)
+
+        # format: 19-29
+        vol_list = volume.split("-")
+        if len(vol_list) != 2:
+            logger.error("Invalid volume input.")
+            exit(1)
+        start_vol = int(vol_list[0])
+        end_vol = int(vol_list[1])
+        if end_vol <= start_vol:
+            logger.error("Invalid volume input.")
+
+        for vol in range(start_vol, end_vol + 1):
+            saved_fn = "{}{}.bib".format(name, vol)
+            if from_pkl_fn is None:
+                collect_journal_metadata(
+                    name, vol, need_abs, saved_fn, dblp_req_itv, save_pkl
+                )
+            else:
+                logger.warning(
+                    '--from-pkl (-f) is not compatible with "72-79" format of volume parameter.'
+                )
+    else:
+        # Conference
+        year = args.year
 
         if args.save is None:
             saved_fn = "{}{}.bib".format(name, year)
