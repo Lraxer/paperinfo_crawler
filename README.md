@@ -66,7 +66,7 @@ python ./main.py -n raid -y 2022
 
 ## TODO
 
-- [ ] 期刊
+- [ ] Elseiver journals
 - [ ] UI
 
 ---
@@ -75,3 +75,4 @@ python ./main.py -n raid -y 2022
 - [x] 保存 dblp 检索结果到 pkl
 - [x] 进度条
 - [x] Springer Conf
+- [x] 期刊
