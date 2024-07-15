@@ -40,6 +40,7 @@ def get_full_abstract(url: str, driver, req_itv: float) -> str:
             abstract = driver.find_element(By.CSS_SELECTOR, "div[xplmathjax]").text
         # print("Abstract:", abstract)
     except:
+        # TODO use paper title
         print(
             "Paper [xxx] cannot be loaded. The reason might be anti-crawler defenses or site updates."
         )
