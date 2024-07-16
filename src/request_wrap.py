@@ -22,7 +22,7 @@ def retry(func):
             except Exception as e:
                 if time < 3:
                     logger.error(
-                        "Cannot access {}. Exception: {} Retry {}/3 after 15 sec.".format(
+                        "Cannot access {} . Exception: {} Retry {}/3 after 15 sec.".format(
                             args[1], e.__class__.__name__, time + 1
                         )
                     )

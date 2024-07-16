@@ -21,10 +21,10 @@ def retry_elsevier(func):
                 result = func(*args, **kwargs)
                 return result
             except Exception as e:
-                if time<3:
+                if time < 3:
                     logger.error(
-                        "Cannot access {}. Exception: {} Retry {}/3 after 15 sec.".format(
-                            args[0], e.__class__.__name__, time+1
+                        "Cannot access {} . Exception: {} Retry {}/3 after 15 sec.".format(
+                            args[0], e.__class__.__name__, time + 1
                         )
                     )
                     sleep(15)

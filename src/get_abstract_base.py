@@ -27,7 +27,7 @@ def get_abstract_base(
     res = make_request(abs_session, url, headers=req_headers)
     if res.status_code != 200:
         logger.warning(
-            "Cannot access {}, status code: {}.".format(url, res.status_code)
+            "Cannot access {} , status code: {}.".format(url, res.status_code)
         )
     else:
         abs_soup = BeautifulSoup(res.text, "html.parser")
