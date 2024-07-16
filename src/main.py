@@ -1,6 +1,7 @@
 import bibtexparser.model
 import entry_ieee
 import entry_acm
+import entry_elsevier
 import entry_ndss
 import entry_springer
 import entry_usenix
@@ -32,6 +33,7 @@ publisher_module_dict = {
     "springer": entry_springer,
     "usenix": entry_usenix,
     "ndss": entry_ndss,
+    "elsevier": entry_elsevier,
 }
 
 
@@ -142,27 +144,47 @@ def collect_abstract(
 
     logger.debug("Publisher: {}.".format(publisher))
 
-    if publisher == "ieee":
-        # 设置headless浏览器选项
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--window-size=1920x1080")
-        # 使 selenium 只输出wanrning及以上的日志信息
-        chrome_options.add_argument("log-level=1")
-        # headless模式下需要改UA
-        chrome_options.add_argument("user-agent={}".format(user_agent))
-        # 创建一个新的Chrome浏览器实例
+    if publisher == "ieee" or publisher=="elsevier":
         chrome_service = Service(chromedriver_path)
-        driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+        chrome_options = Options()
+        # 只用headless会被elsevier识别
+        chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument("user-agent={}".format(user_agent))
 
-        library = collect_abstract_impl(
-            entry_ieee,
-            library,
-            entry_metadata_list,
-            need_selenium=True,
-            req_itv=req_itv,
-            driver=driver,
-        )
+        if publisher=="ieee":
+            # 设置headless浏览器选项
+            # chrome_options.add_argument("--window-size=1920x1080")
+            # 使 selenium 只输出wanrning及以上的日志信息
+            chrome_options.add_argument("log-level=1")
+            # headless模式下需要改UA
+            chrome_options.add_argument("user-agent={}".format(user_agent))
+            # 创建一个新的Chrome浏览器实例
+            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+            
+            library = collect_abstract_impl(
+                entry_ieee,
+                library,
+                entry_metadata_list,
+                need_selenium=True,
+                req_itv=req_itv,
+                driver=driver,
+            )
+        elif publisher=="elsevier":
+            chrome_options.add_argument('--ignore-certificate-errors')
+            chrome_options.add_argument('--ignore-ssl-errors')
+            # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
+            chrome_options.add_argument("log-level=3")
+            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+
+            library = collect_abstract_impl(
+                entry_elsevier,
+                library,
+                entry_metadata_list,
+                need_selenium=True,
+                req_itv=req_itv,
+                driver=driver,
+            )
 
         # 关闭浏览器
         driver.quit()
