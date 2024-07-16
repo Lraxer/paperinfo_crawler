@@ -15,17 +15,18 @@ logger.addHandler(handler)
 # Reference: https://kingname.info/2023/06/11/retry-in-requests/
 def retry(func):
     def wrap(*args, **kwargs):
-        for _ in range(3):
+        for time in range(4):
             try:
                 result = func(*args, **kwargs)
                 return result
             except Exception as e:
-                logger.error(
-                    "Cannot access {}, Exception: {}. Retry after 15 sec.".format(
-                        args[1], e.__class__.__name__
+                if time < 3:
+                    logger.error(
+                        "Cannot access {}. Exception: {} Retry {}/3 after 15 sec.".format(
+                            args[1], e.__class__.__name__, time + 1
+                        )
                     )
-                )
-                sleep(15)
+                    sleep(15)
         return None
 
     return wrap
