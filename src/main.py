@@ -1,9 +1,9 @@
 import bibtexparser.model
-import entry_ieee as entry_ieee
-import entry_acm as entry_acm
-import entry_usenix as entry_usenix
-import entry_ndss as entry_ndss
-import entry_springer as entry_springer
+import entry_ieee
+import entry_acm
+import entry_ndss
+import entry_springer
+import entry_usenix
 import dblp
 import bibtexparser
 from selenium import webdriver
@@ -314,7 +314,7 @@ if __name__ == "__main__":
             saved_fn = args.save
 
         logger.debug(
-            "name:{}\nvolume:{}\nneed_abs:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+            "\nname:{}\nvolume:{}\nneed_abs:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
                 name,
                 volume,
                 need_abs,
@@ -370,7 +370,7 @@ if __name__ == "__main__":
             saved_fn = args.save
 
         logger.debug(
-            "name:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+            "\nname:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
                 name,
                 year,
                 need_abs,
