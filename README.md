@@ -17,7 +17,7 @@
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`  | `acm`      | ✔️     |
 | IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`   | `ieee`     | ✔️     |
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`   | `acm`      | ✔️     |
-| Computer Networks (CN) | 期刊 (CCF-B) | `cn` | `elsevier` | ✔️ |
+| Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`     | `elsevier` | ✔️     |
 | IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp` | `ieee`     | ✔️     |
 | International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`  | `springer` | ✔️     |
 
@@ -66,7 +66,7 @@ python ./main.py -n raid -y 2022
 ## 已知问题
 
 1. 部分带有公式的论文摘要可能无法正确爬取。
-2. 对于Elsevier旗下的期刊，爬取不稳定。
+2. 对于 Elsevier 旗下的期刊，爬取不稳定。
 
 ## TODO
 
