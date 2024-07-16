@@ -20,6 +20,7 @@
 | Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`     | `elsevier` | ✔️     |
 | IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp` | `ieee`     | ✔️     |
 | International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`  | `springer` | ✔️     |
+| Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`   | `elsevier` | ✔️     |
 
 ## 安装
 
