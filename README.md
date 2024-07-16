@@ -6,21 +6,22 @@
 
 **包含摘要的 bibtex 文件可以从 [这里](https://github.com/Lraxer/paper_metadata) 获取。**
 
-| 名称                                                                           | 类型         | 标识     | 出版社标识 | 已测试 |
-| ------------------------------------------------------------------------------ | ------------ | -------- | ---------- | ------ |
-| Annual ACM Conference on Computer and Communications Security (CCS)            | 会议 (CCF-A) | `ccs`    | `acm`      | ✔️     |
-| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`     | `ieee`     | ✔️     |
-| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`    | `usenix`   | ✔️     |
-| Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`   | `ndss`     | ✔️     |
-| IEEE Transactions on Dependable and Secure Computing (TDSC)                    | 期刊 (CCF-A) | `tdsc`   | `ieee`     | ✔️     |
-| IEEE Transactions on Information Forensics and Security (TIFS)                 | 期刊 (CCF-A) | `tifs`   | `ieee`     | ✔️     |
-| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`  | `acm`      | ✔️     |
-| IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`   | `ieee`     | ✔️     |
-| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`   | `acm`      | ✔️     |
-| Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`     | `elsevier` | ✔️     |
-| IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp` | `ieee`     | ✔️     |
-| International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`  | `springer` | ✔️     |
-| Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`   | `elsevier` | ✔️     |
+| 名称                                                                           | 类型         | 标识      | 出版社标识 | 已测试 |
+| ------------------------------------------------------------------------------ | ------------ | --------- | ---------- | ------ |
+| Annual ACM Conference on Computer and Communications Security (CCS)            | 会议 (CCF-A) | `ccs`     | `acm`      | ✔️     |
+| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`      | `ieee`     | ✔️     |
+| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`     | `usenix`   | ✔️     |
+| Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`    | `ndss`     | ✔️     |
+| IEEE Transactions on Dependable and Secure Computing (TDSC)                    | 期刊 (CCF-A) | `tdsc`    | `ieee`     | ✔️     |
+| IEEE Transactions on Information Forensics and Security (TIFS)                 | 期刊 (CCF-A) | `tifs`    | `ieee`     | ✔️     |
+| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`   | `acm`      | ✔️     |
+| IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`    | `ieee`     | ✔️     |
+| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`    | `acm`      | ✔️     |
+| Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`      | `elsevier` | ✔️     |
+| Computers & Security                                                           | 期刊 (CCF-B) | `compsec` | `elsevier` | ✔️     |
+| IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp`  | `ieee`     | ✔️     |
+| International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`   | `springer` | ✔️     |
+| Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`    | `elsevier` | ✔️     |
 
 ## 安装
 
