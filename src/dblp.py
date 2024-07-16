@@ -104,7 +104,6 @@ def get_paper_bibtex(
 
     if bibtex_url is not None:
         sleep(req_itv)
-        # TODO 错误处理
         bibtex_res = make_request(bibtex_session, bibtex_url)
         if bibtex_res is None:
             return None
