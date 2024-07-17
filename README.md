@@ -13,6 +13,7 @@
 | USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`     | `usenix`   | ✔️     |
 | Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`    | `ndss`     | ✔️     |
 | ACM SIGCOMM Conference (SIGCOMM)                                               | 会议 (CCF-A) | `sigcomm` | `acm`      | ✔️     |
+| IEEE Conference on Computer Communications (INFOCOM)                           | 会议 (CCF-A) | `infocom` | `ieee`     | ✔️     |
 | IEEE Transactions on Dependable and Secure Computing (TDSC)                    | 期刊 (CCF-A) | `tdsc`    | `ieee`     | ✔️     |
 | IEEE Transactions on Information Forensics and Security (TIFS)                 | 期刊 (CCF-A) | `tifs`    | `ieee`     | ✔️     |
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`   | `acm`      | ✔️     |
