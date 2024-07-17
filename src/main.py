@@ -301,7 +301,7 @@ if __name__ == "__main__":
             cj_pub_dict[args.name] = args.publisher
         elif publisher != args.publisher:
             print("Input publisher cannot match.")
-            selection = input("Use pre-set publisher or your input? Input 1 or 2.")
+            selection = input("Use pre-set publisher \"{}\" or your input \"{}\"? Input 1 or 2.".format(publisher, args.publisher))
             if selection == "1":
                 logger.debug("Use pre-set publisher.")
             else:
