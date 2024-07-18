@@ -153,15 +153,15 @@ def collect_abstract(
 
     logger.debug("Publisher: {}.".format(publisher))
 
-    if publisher == "ieee" or publisher=="elsevier":
+    if publisher == "ieee" or publisher == "elsevier":
         chrome_service = Service(chromedriver_path)
         chrome_options = Options()
         # 只用headless会被elsevier识别
         chrome_options.add_argument("--headless=new")
-        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("user-agent={}".format(user_agent))
 
-        if publisher=="ieee":
+        if publisher == "ieee":
             # 设置headless浏览器选项
             # chrome_options.add_argument("--window-size=1920x1080")
             # 使 selenium 只输出wanrning及以上的日志信息
@@ -170,7 +170,7 @@ def collect_abstract(
             chrome_options.add_argument("user-agent={}".format(user_agent))
             # 创建一个新的Chrome浏览器实例
             driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-            
+
             library = collect_abstract_impl(
                 entry_ieee,
                 library,
@@ -179,9 +179,9 @@ def collect_abstract(
                 req_itv=req_itv,
                 driver=driver,
             )
-        elif publisher=="elsevier":
-            chrome_options.add_argument('--ignore-certificate-errors')
-            chrome_options.add_argument('--ignore-ssl-errors')
+        elif publisher == "elsevier":
+            chrome_options.add_argument("--ignore-certificate-errors")
+            chrome_options.add_argument("--ignore-ssl-errors")
             # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
             chrome_options.add_argument("log-level=3")
             driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
@@ -310,7 +310,11 @@ if __name__ == "__main__":
             cj_pub_dict[args.name] = args.publisher
         elif publisher != args.publisher:
             print("Input publisher cannot match.")
-            selection = input("Use pre-set publisher \"{}\" or your input \"{}\"? Input 1 or 2.".format(publisher, args.publisher))
+            selection = input(
+                'Use pre-set publisher "{}" or your input "{}"? Input 1 or 2.'.format(
+                    publisher, args.publisher
+                )
+            )
             if selection == "1":
                 logger.debug("Use pre-set publisher.")
             else:
