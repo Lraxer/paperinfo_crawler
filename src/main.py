@@ -117,7 +117,16 @@ def collect_abstract_impl(
             abstract = entry_func.get_full_abstract(
                 abs_session, entry_metadata[1], req_itv
             )
+        # if parse failed, the number of entries in library is 0, print warning and process the next paper.
         tmp_library = bibtexparser.parse_string(entry_metadata[2])
+        if len(tmp_library.entries) != 1:
+            logger.warning(
+                'Cannot parse bibtex string to entry of paper "{}", string is: {}.'.format(
+                    entry_metadata[0], repr(entry_metadata[2])
+                )
+            )
+            continue
+
         if abstract is not None:
             abstract_field = bibtexparser.model.Field("abstract", repr(abstract)[1:-1])
             tmp_library.entries[0].set_field(abstract_field)
