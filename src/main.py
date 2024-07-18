@@ -296,7 +296,7 @@ if __name__ == "__main__":
     if args.publisher is not None:
         if publisher is None:
             print(
-                "This conference/journal has not tested yet. Setting `--save-pkl` is recommended."
+                "This conference/journal has not been tested yet. Setting `--save-pkl` is recommended."
             )
             cj_pub_dict[args.name] = args.publisher
         elif publisher != args.publisher:
