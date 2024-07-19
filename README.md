@@ -18,6 +18,7 @@
 | IEEE Transactions on Information Forensics and Security (TIFS)                 | 期刊 (CCF-A) | `tifs`    | `ieee`     | ✔️     |
 | IEEE Journal of Selected Areas in Communications (JSAC)                        | 期刊 (CCF-A) | `jsac`    | `ieee`     | ✔️     |
 | IEEE Transactions on Mobile Computing (TMC)                                    | 期刊 (CCF-A) | `tmc`     | `ieee`     | ✔️     |
+| IEEE/ACM Transactions on Networking (TON)                                      | 期刊 (CCF-A) | `ton`     | `ieee`     | ✔️     |
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`   | `acm`      | ✔️     |
 | IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`    | `ieee`     | ✔️     |
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`    | `acm`      | ✔️     |
