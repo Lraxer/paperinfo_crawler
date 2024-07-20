@@ -5,6 +5,7 @@ import entry_elsevier
 import entry_ndss
 import entry_springer
 import entry_usenix
+import entry_iospress
 import dblp
 import bibtexparser
 from selenium import webdriver
@@ -34,6 +35,7 @@ publisher_module_dict = {
     "usenix": entry_usenix,
     "ndss": entry_ndss,
     "elsevier": entry_elsevier,
+    "iospress": entry_iospress
 }
 
 
