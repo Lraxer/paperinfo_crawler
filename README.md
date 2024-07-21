@@ -88,4 +88,4 @@ python ./main.py -n raid -y 2022
 - [x] 期刊
 - [x] Elseiver journals
 - [x] 优化 IEEE 爬取代码
-- [x] 爬取JCS
+- [x] 爬取 JCS
