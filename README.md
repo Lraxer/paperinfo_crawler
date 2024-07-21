@@ -24,6 +24,7 @@
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`    | `acm`      | ✔️     |
 | Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`      | `elsevier` | ✔️     |
 | Computers & Security                                                           | 期刊 (CCF-B) | `compsec` | `elsevier` | ✔️     |
+| ACM Transactions on Privacy and Security (TOPS)                                | 期刊 (CCF-B) | `tissec`  | `acm`      | ✔️     |
 | IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp`  | `ieee`     | ✔️     |
 | International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`   | `springer` | ✔️     |
 | Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`    | `elsevier` | ✔️     |
