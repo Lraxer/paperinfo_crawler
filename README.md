@@ -27,6 +27,7 @@
 | Computers & Security                                                           | 期刊 (CCF-B) | `compsec` | `elsevier` | ✔️     |
 | ACM Transactions on Privacy and Security (TOPS)                                | 期刊 (CCF-B) | `tissec`  | `acm`      | ✔️     |
 | IEEE Transactions on Wireless Communications (TWC)                             | 期刊 (CCF-B) | `twc`     | `ieee`     | ✔️     |
+| ACM Transactions on Internet Technology (TOIT)                                 | 期刊 (CCF-B) | `toit`    | `acm`      | ✔️     |
 | IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp`  | `ieee`     | ✔️     |
 | International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`   | `springer` | ✔️     |
 | Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`    | `elsevier` | ✔️     |
