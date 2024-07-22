@@ -38,6 +38,7 @@ cj_pub_dict = {
     "tmc": "ieee",
     "ton": "ieee",
     "tcom": "ieee",
+    "twc": "ieee",
     "tissec": "acm",
     "cn": "elsevier",
     "compsec": "elsevier",
@@ -46,7 +47,19 @@ cj_pub_dict = {
 }
 # publisher -> conference/journal
 pub_cj_dict = {
-    "ieee": {"sp", "csfw", "eurosp", "tdsc", "tifs", "infocom", "jsac", "tmc", "ton", "tcom"},
+    "ieee": {
+        "sp",
+        "csfw",
+        "eurosp",
+        "tdsc",
+        "tifs",
+        "infocom",
+        "jsac",
+        "tmc",
+        "ton",
+        "tcom",
+        "twc",
+    },
     "acm": {"acsac", "ccs", "sigcomm", "raid", "tissec"},
     "springer": {"icics"},
     "usenix": {"uss"},
