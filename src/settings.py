@@ -44,6 +44,7 @@ cj_pub_dict = {
     "cn": "elsevier",
     "compsec": "elsevier",
     "istr": "elsevier",
+    "iot": "elsevier",
     "jcs": "iospress",
 }
 # publisher -> conference/journal
@@ -65,6 +66,6 @@ pub_cj_dict = {
     "springer": {"icics"},
     "usenix": {"uss"},
     "ndss": {"ndss"},
-    "elsevier": {"cn", "compsec", "istr"},
+    "elsevier": {"cn", "compsec", "istr", "iot"},
     "iospress": {"jcs"},
 }
