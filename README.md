@@ -34,6 +34,7 @@
 | ACM Transactions on Internet Technology (TOIT)                                 | 期刊 (CCF-B) | `toit`    | `acm`      | ✔️     |
 | IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp`  | `ieee`     | ✔️     |
 | International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`   | `springer` | ✔️     |
+| ACM Asia Conference on Computer and Communications Security (AsiaCCS)          | 会议 (CCF-C) | `asiaccs` | `acm`      | ✔️     |
 | Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`    | `elsevier` | ✔️     |
 | Internet of Things (IOT)                                                       | 期刊 (CCF-C) | `iot`     | `elsevier` | ✔️     |
 
