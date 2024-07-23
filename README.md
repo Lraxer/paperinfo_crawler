@@ -25,6 +25,7 @@
 | IEEE International Conference on Network Protocols (ICNP)                      | 会议 (CCF-B) | `icnp`    | `ieee`     | ✔️     |
 | IEEE/ACM International Workshop on Quality of Service (IWQoS)                  | 会议 (CCF-B) | `iwqos`   | `ieee`     | ✔️     |
 | Conference on Emerging Network Experiment and Technology (CoNEXT)              | 会议 (CCF-B) | `conext`  | `acm`      | ✔️     |
+| ACM/SIGCOMM Internet Measurement Conference (IMC)                              | 会议 (CCF-B) | `imc`     | `acm`      | ✔️     |
 | Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`      | `elsevier` | ✔️     |
 | IEEE Transactions on Communications (TCOM)                                     | 期刊 (CCF-B) | `tcom`    | `ieee`     | ✔️     |
 | Computers & Security                                                           | 期刊 (CCF-B) | `compsec` | `elsevier` | ✔️     |
