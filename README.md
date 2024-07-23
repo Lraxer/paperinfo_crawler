@@ -22,6 +22,8 @@
 | Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`   | `acm`      | ✔️     |
 | IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`    | `ieee`     | ✔️     |
 | International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`    | `acm`      | ✔️     |
+| IEEE International Conference on Network Protocols (ICNP)                      | 会议 (CCF-B) | `icnp`    | `ieee`     | ✔️     |
+| IEEE/ACM International Workshop on Quality of Service (IWQoS)                  | 会议 (CCF-B) | `iwqos`   | `ieee`     | ✔️     |
 | Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`      | `elsevier` | ✔️     |
 | IEEE Transactions on Communications (TCOM)                                     | 期刊 (CCF-B) | `tcom`    | `ieee`     | ✔️     |
 | Computers & Security                                                           | 期刊 (CCF-B) | `compsec` | `elsevier` | ✔️     |
