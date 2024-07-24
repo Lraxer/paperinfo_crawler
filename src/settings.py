@@ -35,6 +35,7 @@ cj_pub_dict = {
     "asiaccs": "acm",
     "icics": "springer",
     "iccS": "springer",
+    "esorics": "springer",
     "uss": "usenix",
     "ndss": "ndss",
     # journal
@@ -82,7 +83,7 @@ pub_cj_dict = {
         "imc",
         "asiaccs",
     },
-    "springer": {"icics", "cybersec", "iccS"},
+    "springer": {"icics", "cybersec", "iccS", "esorics"},
     "usenix": {"uss"},
     "ndss": {"ndss"},
     "elsevier": {"cn", "compsec", "istr", "iot"},
