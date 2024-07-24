@@ -2,41 +2,11 @@
 
 **注意，本项目不会下载论文，仅获取包括摘要在内的论文元数据。**
 
-## 当前确认支持的会议/期刊
+## 支持的会议/期刊
 
 **包含摘要的 bibtex 文件可以从 [这里](https://github.com/Lraxer/paper_metadata) 获取。**
 
-| 名称                                                                           | 类型         | 标识      | 出版社标识 | 已测试 |
-| ------------------------------------------------------------------------------ | ------------ | --------- | ---------- | ------ |
-| Annual ACM Conference on Computer and Communications Security (CCS)            | 会议 (CCF-A) | `ccs`     | `acm`      | ✔️     |
-| IEEE Symposium on Security and Privacy (S&P)                                   | 会议 (CCF-A) | `sp`      | `ieee`     | ✔️     |
-| USENIX Security Symposium (USENIX Security)                                    | 会议 (CCF-A) | `uss`     | `usenix`   | ✔️     |
-| Network and Distributed System Security Symposium (NDSS)                       | 会议 (CCF-A) | `ndss`    | `ndss`     | ✔️     |
-| ACM SIGCOMM Conference (SIGCOMM)                                               | 会议 (CCF-A) | `sigcomm` | `acm`      | ✔️     |
-| IEEE Conference on Computer Communications (INFOCOM)                           | 会议 (CCF-A) | `infocom` | `ieee`     | ✔️     |
-| IEEE Transactions on Dependable and Secure Computing (TDSC)                    | 期刊 (CCF-A) | `tdsc`    | `ieee`     | ✔️     |
-| IEEE Transactions on Information Forensics and Security (TIFS)                 | 期刊 (CCF-A) | `tifs`    | `ieee`     | ✔️     |
-| IEEE Journal of Selected Areas in Communications (JSAC)                        | 期刊 (CCF-A) | `jsac`    | `ieee`     | ✔️     |
-| IEEE Transactions on Mobile Computing (TMC)                                    | 期刊 (CCF-A) | `tmc`     | `ieee`     | ✔️     |
-| IEEE/ACM Transactions on Networking (TON)                                      | 期刊 (CCF-A) | `ton`     | `ieee`     | ✔️     |
-| Annual Computer Security Applications Conference (ACSAC)                       | 会议 (CCF-B) | `acsac`   | `acm`      | ✔️     |
-| IEEE Computer Security Foundations Workshop (CSFW)                             | 会议 (CCF-B) | `csfw`    | `ieee`     | ✔️     |
-| International Symposium on Research in Attacks, Intrusions and Defenses (RAID) | 会议 (CCF-B) | `raid`    | `acm`      | ✔️     |
-| IEEE International Conference on Network Protocols (ICNP)                      | 会议 (CCF-B) | `icnp`    | `ieee`     | ✔️     |
-| IEEE/ACM International Workshop on Quality of Service (IWQoS)                  | 会议 (CCF-B) | `iwqos`   | `ieee`     | ✔️     |
-| Conference on Emerging Network Experiment and Technology (CoNEXT)              | 会议 (CCF-B) | `conext`  | `acm`      | ✔️     |
-| ACM/SIGCOMM Internet Measurement Conference (IMC)                              | 会议 (CCF-B) | `imc`     | `acm`      | ✔️     |
-| Computer Networks (CN)                                                         | 期刊 (CCF-B) | `cn`      | `elsevier` | ✔️     |
-| IEEE Transactions on Communications (TCOM)                                     | 期刊 (CCF-B) | `tcom`    | `ieee`     | ✔️     |
-| Computers & Security                                                           | 期刊 (CCF-B) | `compsec` | `elsevier` | ✔️     |
-| ACM Transactions on Privacy and Security (TOPS)                                | 期刊 (CCF-B) | `tissec`  | `acm`      | ✔️     |
-| IEEE Transactions on Wireless Communications (TWC)                             | 期刊 (CCF-B) | `twc`     | `ieee`     | ✔️     |
-| ACM Transactions on Internet Technology (TOIT)                                 | 期刊 (CCF-B) | `toit`    | `acm`      | ✔️     |
-| IEEE European Symposium on Security and Privacy (EuroS&P)                      | 会议 (CCF-C) | `eurosp`  | `ieee`     | ✔️     |
-| International Conference on Information and Communication Security (ICICS)     | 会议 (CCF-C) | `icics`   | `springer` | ✔️     |
-| ACM Asia Conference on Computer and Communications Security (AsiaCCS)          | 会议 (CCF-C) | `asiaccs` | `acm`      | ✔️     |
-| Journal of Information Security and Applications (JISA)                        | 期刊 (CCF-C) | `istr`    | `elsevier` | ✔️     |
-| Internet of Things (IOT)                                                       | 期刊 (CCF-C) | `iot`     | `elsevier` | ✔️     |
+理论上支持 IEEE、ACM、Elsevier、Springer 出版或举办的期刊和会议，以及 USENIX、NDSS、IOS Press 出版社。可参考 [论文元数据收集情况表](https://rigorous-frost-052.notion.site/d5053e59458a47769fd645be500f55ff?v=c97cacf0bdc94d9b965a29f3d5f0d473)，“收录情况”一列不为空的是已经测试过可用的期刊或会议，空的是没有测试或不支持的出版社。
 
 ## 安装
 
@@ -60,25 +30,32 @@ pip install -r requirements-no-version.txt
 
 ## 运行
 
+脚本分为两部分：
+
+1. 从 [dblp](https://dblp.org/) 获取给定会议和年份的论文列表，或给定期刊和卷号的论文列表，得到 bibtex 格式的引用，并获取论文的 `doi.org/xxxx` 格式的 URL 链接。
+2. 访问每一篇论文的链接，该链接会自动重定向到出版社的页面。脚本尝试从页面中获取摘要，合并到 bibtex 引用中，生成 `.bib` 文件。
+
 ```powershell
 cd src
 python ./main.py --help
 
 # e.g.
-python ./main.py -n raid -y 2022
+# 会议
+python ./main.py -n raid -y 2022 -e -d 5 -t 8
+# dblp 上，部分会议一年分为多个part
+# 通过 -f 参数，使用保存的dblp论文列表获取摘要
+# 如果要爬取的会议/期刊不在已验证的支持范围内，用 -p 手动指定出版社
+python .\main.py -n iccS -y 2022-2 -p springer -f ./iccS2022-2_dblp.pkl -t 6
+
+# 期刊
+python ./main.py -n tifs -u 16 -e -d 5 -t 8
+# 可以批量下载多个卷
+python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 ```
 
-## 测试平台
+## 测试环境
 
-### OS
-
-- [x] Windows
-- [ ] Linux
-- [ ] MacOS
-
-### Python
-
-- Python 3.9.7
+由于设备有限，当前只在 Windows 11 系统下，Python 3.9.7 环境运行过脚本。该脚本理论上不受系统限制。注意需要下载对应操作系统的 chromedriver 即可。
 
 ## 已知问题
 
@@ -86,10 +63,6 @@ python ./main.py -n raid -y 2022
 2. 部分论文尚未收录在 doi.org 网站上，因此无法通过该链接重定向到出版社的论文页面获取摘要。
 
 ## TODO
-
-- [ ] UI
-
----
 
 - [x] 命令行
 - [x] 保存 dblp 检索结果到 pkl
