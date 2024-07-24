@@ -25,6 +25,10 @@ def get_abstract_base(
     sleep(req_itv)
 
     res = make_request(abs_session, url, headers=req_headers)
+    # 请求失败
+    if res is None:
+        return None
+    
     if res.status_code != 200:
         logger.warning(
             "Cannot access {} , status code: {}.".format(url, res.status_code)
