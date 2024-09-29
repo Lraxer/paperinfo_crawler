@@ -10,7 +10,18 @@
 
 ## 安装
 
-为了稳定运行 selenium，建议下载 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，并在 `settings.py` 中修改 `chromedriver_path`。
+### 下载 chromedriver
+
+为了稳定运行 selenium，请下载合适版本的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)并解压缩，然后在 `settings.py` 中修改 `chromedriver_path`，填写 `chromedriver` 可执行文件的路径。
+
+**注意，chromedriver 的版本需要与你的系统的chrome浏览器版本一致（或者大版本一致）。** 当出现类似下面的错误时，更新你的chromedriver版本。
+
+```
+selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version [xxx]
+Current browser version [yyy] with binary path [...]
+```
+
+### 设置 Python 虚拟环境与安装依赖
 
 ```powershell
 # For Windows
