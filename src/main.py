@@ -51,6 +51,9 @@ def collect_conf_metadata(
         dblp.get_conf_url(name, year), dblp_req_itv, "conf"
     )
     logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
+    if len(entry_metadata_list) <= 0:
+        logger.warning("No paper found in {}, {}".format(name, year))
+        return
 
     if save_pickle:
         pkl_filename = "{}{}_dblp.pkl".format(name, year)
@@ -82,6 +85,9 @@ def collect_journal_metadata(
         dblp.get_journal_url(name, volume), dblp_req_itv, "journal"
     )
     logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
+    if len(entry_metadata_list) <= 0:
+        logger.warning("No paper found in {}, {}.".format(name, volume))
+        return
 
     if save_pickle:
         pkl_filename = "{}{}_dblp.pkl".format(name, volume)

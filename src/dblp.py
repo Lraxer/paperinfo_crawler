@@ -137,7 +137,7 @@ def get_dblp_page_content(url: str, req_itv, type: str) -> list:
     res = requests.get(url)
     if res.status_code != 200:
         print("{} cannot be loaded. Make sure your input is valid.".format(url))
-        return
+        return []
     soup = BeautifulSoup(res.text, "html.parser")
     if type == "conf":
         paper_entry = soup.select(
