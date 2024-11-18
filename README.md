@@ -12,9 +12,13 @@
 
 ### 下载 chromedriver
 
-为了稳定运行 selenium，请下载合适版本的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)并解压缩，然后在 `settings.py` 中修改 `chromedriver_path`，填写 `chromedriver` 可执行文件的路径。
+为了稳定运行 selenium，请下载合适版本的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)并解压缩。
 
-**注意，chromedriver 的版本需要与你的系统的chrome浏览器版本一致（或者大版本一致）。** 当出现类似下面的错误时，更新你的chromedriver版本。
+1. 打开 Goole Chrome 浏览器，查看浏览器的版本号；
+2. 下载和浏览器版本对应的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，解压缩到一个目录；
+3. 在 `settings.py` 中修改 `chromedriver_path`，填写 `chromedriver` 可执行文件的路径。
+
+**注意，chromedriver 的版本必须与你的系统的 chrome 浏览器版本一致（或者大版本一致）。** 当出现类似下面的错误时，下载新版本的 chromedriver。
 
 ```
 selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version [xxx]
@@ -54,7 +58,7 @@ python ./main.py --help
 # 会议
 python ./main.py -n raid -y 2022 -e -d 5 -t 8
 # dblp 上，部分会议一年分为多个part
-# 通过 -f 参数，使用保存的dblp论文列表获取摘要
+# 通过 -f 参数，读取pickle文件中保存的dblp论文列表，以获取摘要
 # 如果要爬取的会议/期刊不在已验证的支持范围内，用 -p 手动指定出版社
 python .\main.py -n iccS -y 2022-2 -p springer -f ./iccS2022-2_dblp.pkl -t 6
 
@@ -66,11 +70,11 @@ python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 
 ## 测试环境
 
-由于设备有限，当前只在 Windows 11 系统下，Python 3.9.7 环境运行过脚本。该脚本理论上不受系统限制。注意需要下载对应操作系统的 chromedriver 即可。
+由于设备有限，当前只在 Windows 11 系统下，Python 3.9.7 环境运行过脚本。该脚本理论上不受系统限制。
 
 ## 已知问题
 
-1. 部分带有公式的论文摘要可能无法正确爬取。
+1. 部分带有公式的论文摘要可能无法正确爬取，公式不能正确显示。这是因为网页上的公式是经过渲染后的，爬到的只是渲染前的原始状态。
 2. 部分论文尚未收录在 doi.org 网站上，因此无法通过该链接重定向到出版社的论文页面获取摘要。
 
 ## TODO
