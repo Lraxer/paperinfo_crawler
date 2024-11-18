@@ -26,8 +26,9 @@ def get_conf_url(name: str, year: str) -> str:
     Returns:
         str: dblp URL
     """
-    if name == "csfw" and year == "2023":
-        # csfw 2023会议URL特殊：csfw/csf[year].html
+    # isdigit() is still unsafe here as it does not equal to test whether string is an integer
+    if name == "csfw" and year.isdigit() and int(year) >= 2023:
+        # csfw 2023和后续的会议URL特殊：csfw/csf[year].html
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name[:-1], year)
     elif name == "conext" and year == "2023":
         # conext 2023会议URL特殊：conext/conext[year]c.html
