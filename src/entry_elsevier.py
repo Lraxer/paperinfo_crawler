@@ -67,19 +67,20 @@ def get_full_abstract(url: str, driver, req_itv: float) -> str:
 
 #     chrome_options = Options()
 #     # 只用headless会被识别
-#     chrome_options.add_argument("--headless=new")
+#     # chrome_options.add_argument("--headless=new")
 #     chrome_options.add_argument("user-agent={}".format(user_agent))
 #     chrome_options.add_argument("--ignore-certificate-errors")
 #     chrome_options.add_argument("--ignore-ssl-errors")
 #     chrome_options.add_argument("--disable-gpu")
 #     # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
 #     chrome_options.add_argument("log-level=3")
+#     chrome_options.add_argument("--user-data-dir=D:/pycode/chromedriver-user-data/")
 #     # headless模式下需要改UA
 #     # 创建一个新的Chrome浏览器实例
 #     chrome_service = Service(chromedriver_path)
 #     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 #     abstract = get_full_abstract(
-#         "https://doi.org/10.1016/j.comnet.2024.110499", driver, 0
+#         "https://doi.org/10.1016/j.cose.2023.103489", driver, 0
 #     )
 
 #     print(repr(abstract))
