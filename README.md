@@ -12,7 +12,7 @@
 
 ### 下载 chromedriver
 
-为了稳定运行 selenium，请下载合适版本的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)并解压缩。
+为了稳定运行 selenium，请下载合适版本的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/) 并解压缩。
 
 1. 打开 Goole Chrome 浏览器，查看浏览器的版本号；
 2. 下载和浏览器版本对应的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，解压缩到一个目录；
