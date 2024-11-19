@@ -1,6 +1,9 @@
 # chromedriver path
 chromedriver_path = "D:/pycode/chromedriver-win64/chromedriver.exe"
 
+# cookie path
+cookie_path = "D:/pycode/chromedriver-user-data/"
+
 # DBLP URL
 dblp_url = "https://dblp.org/db/"
 

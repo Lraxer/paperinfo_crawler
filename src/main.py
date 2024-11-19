@@ -11,7 +11,7 @@ import bibtexparser
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from settings import user_agent, chromedriver_path, cj_pub_dict
+from settings import user_agent, chromedriver_path, cj_pub_dict, cookie_path
 import logging
 import argparse
 import pickle
@@ -164,13 +164,12 @@ def collect_abstract(
     if publisher == "ieee" or publisher == "elsevier":
         chrome_service = Service(chromedriver_path)
         chrome_options = Options()
-        # 只用headless会被elsevier识别
-        chrome_options.add_argument("--headless=new")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("user-agent={}".format(user_agent))
 
         if publisher == "ieee":
             # 设置headless浏览器选项
+            chrome_options.add_argument("--headless=new")
             # chrome_options.add_argument("--window-size=1920x1080")
             # 使 selenium 只输出wanrning及以上的日志信息
             chrome_options.add_argument("log-level=1")
@@ -188,6 +187,9 @@ def collect_abstract(
                 driver=driver,
             )
         elif publisher == "elsevier":
+            chrome_options.add_argument("--headless=new")
+            # 如果遇到elsevier反爬虫，可以尝试注释掉headless，手动点击登录，利用cookie绕过人机验证
+            chrome_options.add_argument("--user-data-dir={}".format(cookie_path))
             chrome_options.add_argument("--ignore-certificate-errors")
             chrome_options.add_argument("--ignore-ssl-errors")
             # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
