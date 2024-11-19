@@ -5,7 +5,7 @@ chromedriver_path = "D:/pycode/chromedriver-win64/chromedriver.exe"
 dblp_url = "https://dblp.org/db/"
 
 # User agent settings
-user_agent = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+user_agent = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
 # ACM header for requests
 req_headers = {
@@ -29,6 +29,7 @@ cj_pub_dict = {
     "acsac": "acm",
     "ccs": "acm",
     "raid": "acm",
+    "mobicom": "acm",
     "sigcomm": "acm",
     "conext": "acm",
     "imc": "acm",
@@ -75,6 +76,7 @@ pub_cj_dict = {
     "acm": {
         "acsac",
         "ccs",
+        "mobicom",
         "sigcomm",
         "raid",
         "tissec",
