@@ -17,6 +17,8 @@
 1. 打开 Goole Chrome 浏览器，查看浏览器的版本号；
 2. 下载和浏览器版本对应的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，解压缩到一个目录；
 3. 在 `settings.py` 中修改 `chromedriver_path`，填写 `chromedriver` 可执行文件的路径。
+4. 在 `settings.py` 中修改 `cookie_path`，创建一个目录，保存 cookie，并填写该目录的路径。
+5. 可选：在 `settings.py` 中修改 `user_agent`，与浏览器的大版本号一致。对于 Linux, MacOS 等系统，也可根据需要修改 UA。
 
 **注意，chromedriver 的版本必须与你的系统的 chrome 浏览器版本一致（或者大版本一致）。** 当出现类似下面的错误时，下载新版本的 chromedriver。
 
@@ -42,6 +44,8 @@ python -m venv ./venv
 source ./venv/bin/activate
 pip install -r requirements-no-version.txt
 ```
+
+**检查一下 `bibtexpaser` 的版本是不是 2.0.0 及以上。如果不是，卸载这个包之后，通过 `pip install --pre bibtexparser` 重新安装。**
 
 ## 运行
 
@@ -72,7 +76,34 @@ python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 
 由于设备有限，当前只在 Windows 11 系统下，Python 3.9.7 环境运行过脚本。该脚本理论上不受系统限制。
 
+**爬取的速度，即 `-d` 和 `-t` 参数不应太小，以免被封禁。**
+
 ## 已知问题
+
+### Elsevier 需要通过人机验证
+
+首先，尝试修改 `settings.py` 中的 `user_agent`，将 `Chrome/131.0.0.0` 的这个版本号修改为与你的浏览器版本一致。
+
+如果还是需要验证，这个问题一般是网络原因导致的。如果你正在使用网络代理，可以考虑将 `elsevier.com` 和 `sciencedirect.com` 以 `DOMAIN-SUFFIX` 的策略走 `DIRECT` 连接。
+
+另一个可能的解决思路（没有经过测试）是，先注释掉 `collect_abstract` 函数里，`elsevier` 处理代码的 `--headless=new`，并指定 chromedriver 的用户数据存放地址：
+
+```python
+chrome_options.add_argument("--user-data-dir={}".format(cookie_path))
+```
+
+在打开的网页中，手动通过人机验证，后面利用 cookie 绕过验证流程。
+
+也可以直接利用 Google Chrome 的用户数据完成验证。参考[这个链接](https://stackoverflow.com/a/67389309)：
+
+```python
+options.add_argument(r"--user-data-dir=C:\path\to\chrome\user\data") #e.g. C:\Users\You\AppData\Local\Google\Chrome\User Data
+options.add_argument(r'--profile-directory=YourProfileDir') #e.g. Default
+```
+
+但这个直接用 Chrome 用户数据的问题是，运行这个脚本需要关闭 Chrome 浏览器，防止同时读写同一个 profile。
+
+### 其他
 
 1. 部分带有公式的论文摘要可能无法正确爬取，公式不能正确显示。这是因为网页上的公式是经过渲染后的，爬到的只是渲染前的原始状态。
 2. 部分论文尚未收录在 doi.org 网站上，因此无法通过该链接重定向到出版社的论文页面获取摘要。
