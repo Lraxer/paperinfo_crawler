@@ -42,6 +42,7 @@ publisher_module_dict = {
 def collect_conf_metadata(
     name: str,
     year: str,
+    publisher: str,
     need_abstract: bool,
     export_bib_path: str,
     dblp_req_itv: float,
@@ -66,7 +67,7 @@ def collect_conf_metadata(
             name,
             entry_metadata_list,
             export_bib_path,
-            cj_pub_dict.get(name, "other"),
+            publisher,
             req_itv,
         )
 
@@ -76,6 +77,7 @@ def collect_conf_metadata(
 def collect_journal_metadata(
     name: str,
     volume: str,
+    publisher: str,
     need_abstract: bool,
     export_bib_path: str,
     dblp_req_itv: float,
@@ -100,7 +102,7 @@ def collect_journal_metadata(
             name,
             entry_metadata_list,
             export_bib_path,
-            cj_pub_dict.get(name, "other"),
+            publisher,
             req_itv,
         )
 
@@ -207,9 +209,6 @@ def collect_abstract(
 
         # 关闭浏览器
         driver.quit()
-    elif publisher == "other":
-        logger.error("Not supported.")
-        return
     else:
         selected_module = publisher_module_dict.get(publisher)
         if selected_module is not None:
@@ -235,6 +234,7 @@ def collect_abstract(
 def collect_abstract_from_dblp_pkl(
     pkl_filename: str,
     name: str,
+    publisher: str,
     export_bib_path: str,
     req_itv: float,
 ):
@@ -244,7 +244,7 @@ def collect_abstract_from_dblp_pkl(
         name,
         entry_metadata_list,
         export_bib_path,
-        cj_pub_dict.get(name, "other"),
+        publisher,
         req_itv,
     )
 
@@ -315,7 +315,7 @@ if __name__ == "__main__":
     if args.publisher is not None:
         if publisher is None:
             print(
-                "This conference/journal has not been tested yet. Setting `--save-pkl` is recommended."
+                "This conference/journal has not been tested yet. Setting --save-pkl is recommended."
             )
             cj_pub_dict[args.name] = args.publisher
         elif publisher != args.publisher:
@@ -333,7 +333,7 @@ if __name__ == "__main__":
     else:
         if publisher is None:
             print(
-                "Cannot find this conference. Please specify publisher by -p or --publisher."
+                "Cannot find this conference/journal. Please specify publisher by -p or --publisher."
             )
             exit(1)
 
@@ -342,7 +342,7 @@ if __name__ == "__main__":
     from_pkl_fn = args.from_pkl
 
     if need_abs is False and from_pkl_fn is not None:
-        print("--no-abs cannot be set while using --from-pkl (-f).")
+        print("--no-abs cannot be set together with --from-pkl (-f).")
         exit(1)
 
     dblp_req_itv = args.dblp_interval
@@ -359,12 +359,13 @@ if __name__ == "__main__":
             saved_fn = args.save
 
         logger.debug(
-            "\nname:{}\nvolume:{}\nneed_abs:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+            "\nname:{}\nvolume:{}\nneed_abs:{}\ndblp_req_itv:{}\nreq_itev:{}\npublisher:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
                 name,
                 volume,
                 need_abs,
                 dblp_req_itv,
                 req_itv,
+                publisher,
                 save_pkl,
                 from_pkl_fn,
             )
@@ -378,11 +379,11 @@ if __name__ == "__main__":
             logger.debug("saved_fn:{}".format(saved_fn))
             if from_pkl_fn is None:
                 collect_journal_metadata(
-                    name, volume, need_abs, saved_fn, dblp_req_itv, save_pkl
+                    name, volume, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
                 )
                 exit(0)
             else:
-                collect_abstract_from_dblp_pkl(from_pkl_fn, name, saved_fn, req_itv)
+                collect_abstract_from_dblp_pkl(from_pkl_fn, name, publisher, saved_fn, req_itv)
                 exit(0)
 
         # format: 19-29
@@ -399,7 +400,7 @@ if __name__ == "__main__":
             saved_fn = "{}{}.bib".format(name, vol)
             if from_pkl_fn is None:
                 collect_journal_metadata(
-                    name, vol, need_abs, saved_fn, dblp_req_itv, save_pkl
+                    name, vol, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
                 )
             else:
                 logger.warning(
@@ -428,8 +429,8 @@ if __name__ == "__main__":
         )
         if from_pkl_fn is None:
             collect_conf_metadata(
-                name, year, need_abs, saved_fn, dblp_req_itv, save_pkl
+                name, year, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
             )
         else:
             logger.debug("Collect abstract from dblp pickle file.")
-            collect_abstract_from_dblp_pkl(from_pkl_fn, name, saved_fn, req_itv)
+            collect_abstract_from_dblp_pkl(from_pkl_fn, name, publisher, saved_fn, req_itv)
