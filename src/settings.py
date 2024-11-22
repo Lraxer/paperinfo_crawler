@@ -25,6 +25,7 @@ cj_pub_dict = {
     # conference
     "sp": "ieee",
     "csfw": "ieee",
+    "dsn": "ieee",
     "eurosp": "ieee",
     "infocom": "ieee",
     "icnp": "ieee",
@@ -64,6 +65,7 @@ pub_cj_dict = {
     "ieee": {
         "sp",
         "csfw",
+        "dsn",
         "eurosp",
         "tdsc",
         "tifs",
