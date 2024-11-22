@@ -416,12 +416,13 @@ if __name__ == "__main__":
             saved_fn = args.save
 
         logger.debug(
-            "\nname:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
+            "\nname:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\npublisher:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
                 name,
                 year,
                 need_abs,
                 saved_fn,
                 dblp_req_itv,
+                publisher,
                 req_itv,
                 save_pkl,
                 from_pkl_fn,
