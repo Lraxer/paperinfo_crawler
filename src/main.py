@@ -311,13 +311,18 @@ if __name__ == "__main__":
 
     name = args.name
 
+    save_pkl = args.save_pkl
+    need_abs = not args.no_abs
+    from_pkl_fn = args.from_pkl
+
     publisher = cj_pub_dict.get(args.name)
     if args.publisher is not None:
         if publisher is None:
-            print(
-                "This conference/journal has not been tested yet. Setting --save-pkl is recommended."
-            )
-            cj_pub_dict[args.name] = args.publisher
+            if from_pkl_fn is not None:
+                print(
+                    "This conference/journal has not been tested yet. Setting --save-pkl is recommended."
+                )
+            publisher = args.publisher
         elif publisher != args.publisher:
             print("Input publisher cannot match.")
             selection = input(
@@ -336,10 +341,6 @@ if __name__ == "__main__":
                 "Cannot find this conference/journal. Please specify publisher by -p or --publisher."
             )
             exit(1)
-
-    save_pkl = args.save_pkl
-    need_abs = not args.no_abs
-    from_pkl_fn = args.from_pkl
 
     if need_abs is False and from_pkl_fn is not None:
         print("--no-abs cannot be set together with --from-pkl (-f).")
