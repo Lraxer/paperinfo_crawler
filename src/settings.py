@@ -46,6 +46,7 @@ cj_pub_dict = {
     # journal
     "tdsc": "ieee",
     "tifs": "ieee",
+    "tkde": "ieee",
     "jsac": "ieee",
     "tmc": "ieee",
     "ton": "ieee",
@@ -69,6 +70,7 @@ pub_cj_dict = {
         "eurosp",
         "tdsc",
         "tifs",
+        "tkde",
         "infocom",
         "jsac",
         "tmc",
