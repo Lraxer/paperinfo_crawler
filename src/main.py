@@ -35,7 +35,7 @@ publisher_module_dict = {
     "usenix": entry_usenix,
     "ndss": entry_ndss,
     "elsevier": entry_elsevier,
-    "iospress": entry_iospress
+    "iospress": entry_iospress,
 }
 
 
@@ -384,7 +384,9 @@ if __name__ == "__main__":
                 )
                 exit(0)
             else:
-                collect_abstract_from_dblp_pkl(from_pkl_fn, name, publisher, saved_fn, req_itv)
+                collect_abstract_from_dblp_pkl(
+                    from_pkl_fn, name, publisher, saved_fn, req_itv
+                )
                 exit(0)
 
         # format: 19-29
@@ -394,11 +396,11 @@ if __name__ == "__main__":
             exit(1)
         start_vol = int(vol_list[0])
         end_vol = int(vol_list[1])
-        
+
         if end_vol <= start_vol:
             logger.error("Invalid volume input.")
             exit(1)
-        
+
         if from_pkl_fn is not None:
             logger.error(
                 '--from-pkl (-f) is not compatible with "72-79" format of volume parameter.'
@@ -438,4 +440,6 @@ if __name__ == "__main__":
             )
         else:
             logger.debug("Collect abstract from dblp pickle file.")
-            collect_abstract_from_dblp_pkl(from_pkl_fn, name, publisher, saved_fn, req_itv)
+            collect_abstract_from_dblp_pkl(
+                from_pkl_fn, name, publisher, saved_fn, req_itv
+            )
