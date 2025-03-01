@@ -5,6 +5,8 @@ from time import sleep
 
 import logging
 
+from settings import retry_interval
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
@@ -23,11 +25,11 @@ def retry_ieee(func):
             except Exception as e:
                 if time < 3:
                     logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after 15 sec.".format(
-                            args[0], e.__class__.__name__, time + 1
+                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
+                            args[0], e.__class__.__name__, time + 1, retry_interval
                         )
                     )
-                    sleep(15)
+                    sleep(retry_interval)
                 # let driver clear cookies.
                 args[1].delete_all_cookies()
         return None

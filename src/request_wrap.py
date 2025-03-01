@@ -2,6 +2,8 @@ import requests
 import logging
 from time import sleep
 
+from settings import retry_interval
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
@@ -22,11 +24,11 @@ def retry(func):
             except Exception as e:
                 if time < 3:
                     logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after 15 sec.".format(
-                            args[1], e.__class__.__name__, time + 1
+                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
+                            args[1], e.__class__.__name__, time + 1, retry_interval
                         )
                     )
-                    sleep(15)
+                    sleep(retry_interval)
         return None
 
     return wrap

@@ -1,8 +1,9 @@
 # chromedriver path
 chromedriver_path = "D:/pycode/chromedriver-win64/chromedriver.exe"
 
-# cookie path
-cookie_path = "D:/pycode/chromedriver-user-data/"
+
+# Interval in seconds to wait for retrying after a failed request
+retry_interval = 15
 
 # DBLP URL
 dblp_url = "https://dblp.org/db/"
@@ -19,6 +20,8 @@ req_headers = {
     "Sec-Fetch-Mode": "navigate",
 }
 
+# cookie path
+cookie_path = "D:/pycode/chromedriver-user-data/"
 
 # conference/journal -> publisher
 cj_pub_dict = {
