@@ -394,19 +394,22 @@ if __name__ == "__main__":
             exit(1)
         start_vol = int(vol_list[0])
         end_vol = int(vol_list[1])
+        
         if end_vol <= start_vol:
             logger.error("Invalid volume input.")
+            exit(1)
+        
+        if from_pkl_fn is not None:
+            logger.error(
+                '--from-pkl (-f) is not compatible with "72-79" format of volume parameter.'
+            )
+            exit(1)
 
         for vol in range(start_vol, end_vol + 1):
             saved_fn = "{}{}.bib".format(name, vol)
-            if from_pkl_fn is None:
-                collect_journal_metadata(
-                    name, vol, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
-                )
-            else:
-                logger.warning(
-                    '--from-pkl (-f) is not compatible with "72-79" format of volume parameter.'
-                )
+            collect_journal_metadata(
+                name, vol, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
+            )
     else:
         # Conference
         year = args.year
