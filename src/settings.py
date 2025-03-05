@@ -6,7 +6,8 @@ chromedriver_path = "D:/pycode/chromedriver-win64/chromedriver.exe"
 retry_interval = 15
 
 # DBLP URL
-dblp_url = "https://dblp.org/db/"
+# dblp_url = "https://dblp.org/db/"
+dblp_url = "https://dblp.uni-trier.de/db/"
 
 # User agent settings
 user_agent = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
