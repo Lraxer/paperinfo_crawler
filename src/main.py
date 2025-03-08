@@ -122,7 +122,15 @@ def collect_abstract_impl(
     # for ieee papers
     for entry_metadata in entry_metadata_list:
         if need_selenium:
-            abstract = entry_func.get_full_abstract(entry_metadata[1], driver, req_itv)
+            if entry_func == entry_iospress:
+                # special case for iospress
+                abstract = entry_func.get_full_abstract(
+                    abs_session, entry_metadata[1], req_itv, driver
+                )
+            else:
+                abstract = entry_func.get_full_abstract(
+                    entry_metadata[1], driver, req_itv
+                )
         else:
             abstract = entry_func.get_full_abstract(
                 abs_session, entry_metadata[1], req_itv
@@ -163,7 +171,7 @@ def collect_abstract(
 
     logger.debug("Publisher: {}.".format(publisher))
 
-    if publisher == "ieee" or publisher == "elsevier":
+    if publisher == "ieee" or publisher == "elsevier" or publisher == "iospress":
         chrome_service = Service(chromedriver_path)
         chrome_options = Options()
         chrome_options.add_argument("--disable-gpu")
@@ -197,6 +205,10 @@ def collect_abstract(
             # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
             chrome_options.add_argument("log-level=3")
             driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+            # disable window.navigtor.webdriver
+            driver.execute_script(
+                "Object.defineProperties(navigator,{webdriver:{get:()=>undefined}})"
+            )
 
             library = collect_abstract_impl(
                 entry_elsevier,
@@ -206,7 +218,30 @@ def collect_abstract(
                 req_itv=req_itv,
                 driver=driver,
             )
+        elif publisher == "iospress":
+            # pretend to be a normal user
+            chrome_options.add_argument("--window-size=1920,1080")
+            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
+            chrome_options.add_argument("--headless=new")
+            chrome_options.add_argument("--ignore-certificate-errors")
+            chrome_options.add_argument("--ignore-ssl-errors")
+            # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
+            chrome_options.add_argument("log-level=3")
+            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+            # disable window.navigtor.webdriver
+            driver.execute_script(
+                "Object.defineProperties(navigator,{webdriver:{get:()=>undefined}})"
+            )
+
+            library = collect_abstract_impl(
+                entry_iospress,
+                library,
+                entry_metadata_list,
+                need_selenium=True,
+                req_itv=req_itv,
+                driver=driver,
+            )
         # 关闭浏览器
         driver.quit()
     else:
