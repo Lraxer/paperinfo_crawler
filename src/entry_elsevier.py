@@ -41,8 +41,8 @@ def retry_elsevier(func):
 def get_abs_impl(url: str, driver) -> str:
     # 访问目标网页
     driver.get(url)
-    # 等待最多10秒
-    wait = WebDriverWait(driver, 10)
+    # 等待最多60秒
+    wait = WebDriverWait(driver, 60)
     abs_tag = wait.until(
         EC.presence_of_element_located(
             (By.CSS_SELECTOR, "div.abstract.author > div > div")
