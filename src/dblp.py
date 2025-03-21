@@ -1,11 +1,13 @@
 import requests
-from settings import dblp_url
+from settings import dblp_url, vldb_url
 from bs4 import BeautifulSoup
 import bs4
 from tqdm import tqdm
 from time import sleep
 import logging
+import re
 from request_wrap import make_request
+import urllib.parse
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -26,14 +28,29 @@ def get_conf_url(name: str, year: str) -> str:
     Returns:
         str: dblp URL
     """
-    # isdigit() is still unsafe here as it does not equal to test whether string is an integer
-    if name == "csfw" and year.isdigit() and int(year) >= 2023:
+    if not year.isdigit():
+        # isdigit() is still unsafe here as it does not equal to test whether string is an integer
+        # e.g. "08" is True
+        logger.error("Year {} is not a valid integer.".format(year))
+        return None
+
+    if name == "csfw" and int(year) >= 2023:
         # csfw 2023和后续的会议URL特殊：csfw/csf[year].html
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name[:-1], year)
     elif name == "conext" and year == "2023":
         # conext 2023会议URL特殊：conext/conext[year]c.html
         conf_url = "{}conf/{}/{}{}c.html".format(dblp_url, name, name, year)
+    elif name == "pvldb":
+        # pvldb会议URL特殊：db/journals/pvldb/pvldb[year-2007].html
+        # 目前仅支持2008及以后的VLDB会议
+        if int(year) < 2008:
+            logger.error("Only support year>=2008 for pvldb currently.".format(year))
+            return None
+        conf_url = "{}journals/{}/{}{}.html".format(
+            dblp_url, name, name, int(year) - 2007
+        )
     else:
+        # default URL
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
 
     logger.debug("Request URL: {}".format(conf_url))
@@ -158,6 +175,22 @@ def get_dblp_page_content(url: str, req_itv, type: str) -> list:
     bibtex_session = requests.Session()
     for entry in tqdm(paper_entries):
         title_url_list = get_paper_title_and_url(entry)
+        if (tmp := url.split("/"))[-2] == "pvldb":
+            # Special handling for PVLDB
+            # extract volume number from "pvldb17.html"
+            match = re.match(r"(pvldb)(\d+)", tmp[-1])
+            if match:
+                vol_num = match.group(2)
+                title_url_list[1] = (
+                    vldb_url.format(vol_num)
+                    + "/"
+                    + urllib.parse.quote(title_url_list[0])
+                )
+            else:
+                logger.error(
+                    "Cannot extract volume number for pvldb from the given URL."
+                )
+
         bibtex_str = get_paper_bibtex(bibtex_session, entry, req_itv)
         entry_metadata_list.append(title_url_list + [bibtex_str])
 

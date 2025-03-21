@@ -12,6 +12,9 @@ dblp_url = "https://dblp.uni-trier.de/db/"
 # User agent settings
 user_agent = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 
+# VLDB URL. Fill in the volume number when using it
+vldb_url = "https://www.vldb.org/pvldb/volumes/{}/paper"
+
 # ACM header for requests
 req_headers = {
     "User-Agent": user_agent,
