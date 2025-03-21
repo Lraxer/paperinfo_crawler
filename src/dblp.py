@@ -141,11 +141,11 @@ def get_dblp_page_content(url: str, req_itv, type: str) -> list:
         return []
     soup = BeautifulSoup(res.text, "html.parser")
     if type == "conf":
-        paper_entry = soup.select(
+        paper_entries = soup.select(
             'li.entry.inproceedings[itemscope][itemtype="http://schema.org/ScholarlyArticle"]'
         )
     elif type == "journal":
-        paper_entry = soup.select(
+        paper_entries = soup.select(
             'li.entry.article[itemscope][itemtype="http://schema.org/ScholarlyArticle"]'
         )
     else:
@@ -153,18 +153,18 @@ def get_dblp_page_content(url: str, req_itv, type: str) -> list:
 
     entry_metadata_list = list()
 
-    progress_dblp = tqdm(total=len(paper_entry))
+    # progress_dblp = tqdm(total=len(paper_entry))
 
     bibtex_session = requests.Session()
-    for entry in paper_entry:
+    for entry in tqdm(paper_entries):
         title_url_list = get_paper_title_and_url(entry)
         bibtex_str = get_paper_bibtex(bibtex_session, entry, req_itv)
         entry_metadata_list.append(title_url_list + [bibtex_str])
 
-        progress_dblp.update(1)
+        # progress_dblp.update(1)
 
     bibtex_session.close()
-    progress_dblp.close()
+    # progress_dblp.close()
 
     return entry_metadata_list
 
