@@ -10,7 +10,7 @@ retry_interval = 15
 dblp_url = "https://dblp.uni-trier.de/db/"
 
 # User agent settings
-user_agent = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+user_agent = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
 
 # ACM header for requests
 req_headers = {
