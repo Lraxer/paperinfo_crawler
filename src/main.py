@@ -365,7 +365,7 @@ if __name__ == "__main__":
         elif publisher != args.publisher:
             print("Input publisher cannot match.")
             selection = input(
-                'Use pre-set publisher "{}" or your input "{}"? Input 1 or 2.'.format(
+                'Use (1) pre-set publisher "{}" or (2) your input "{}"? Input 1 or 2.'.format(
                     publisher, args.publisher
                 )
             )
