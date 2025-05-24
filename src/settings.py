@@ -1,6 +1,7 @@
 # chromedriver path
 chromedriver_path = "D:/pycode/chromedriver-win64/chromedriver.exe"
-
+# chrome path
+chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
 
 # Interval in seconds to wait for retrying after a failed request
 retry_interval = 15

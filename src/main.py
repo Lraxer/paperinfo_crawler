@@ -11,12 +11,20 @@ import bibtexparser
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from settings import user_agent, chromedriver_path, cj_pub_dict, cookie_path
+from settings import (
+    user_agent,
+    chromedriver_path,
+    cj_pub_dict,
+    cookie_path,
+    chrome_path,
+)
 import logging
 import argparse
 import pickle
 from tqdm import tqdm
 import requests
+import zendriver as zd
+import asyncio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -115,13 +123,13 @@ def collect_abstract_impl(
     entry_func,
     library: bibtexparser.Library,
     entry_metadata_list: list,
-    need_selenium: bool,
+    need_webdriver: bool,
     req_itv: float = 10,
     driver=None,
 ):
     abs_session = requests.Session()
-        if need_selenium:
     for entry_metadata in tqdm(entry_metadata_list):
+        if need_webdriver:
             if entry_func == entry_iospress:
                 # special case for iospress
                 abstract = entry_func.get_full_abstract(
@@ -158,7 +166,41 @@ def collect_abstract_impl(
     return library
 
 
-def collect_abstract(
+async def collect_abstract_impl_acm(
+    entry_func,
+    library: bibtexparser.Library,
+    entry_metadata_list: list,
+    need_webdriver: bool,
+    req_itv: float = 10,
+    driver=None,
+):
+    for entry_metadata in tqdm(entry_metadata_list):
+        abstract = await entry_func.get_full_abstract(
+            entry_metadata[1], driver, req_itv
+        )
+        # if parse failed, the number of entries in library is 0, print warning and process the next paper.
+        tmp_library = bibtexparser.parse_string(entry_metadata[2])
+        if len(tmp_library.entries) != 1:
+            logger.warning(
+                'Cannot parse bibtex string to entry of paper "{}", string is: {}.'.format(
+                    entry_metadata[0], repr(entry_metadata[2])
+                )
+            )
+            continue
+
+        if abstract is not None:
+            abstract_field = bibtexparser.model.Field("abstract", repr(abstract)[1:-1])
+            tmp_library.entries[0].set_field(abstract_field)
+        else:
+            logger.warning(
+                'Cannot collect abstract of paper "{}".'.format(entry_metadata[0])
+            )
+        library.add(tmp_library.blocks)
+
+    return library
+
+
+async def collect_abstract(
     name: str,
     entry_metadata_list: list,
     export_bib_path: str,
@@ -193,7 +235,7 @@ def collect_abstract(
                 entry_ieee,
                 library,
                 entry_metadata_list,
-                need_selenium=True,
+                need_webdriver=True,
                 req_itv=req_itv,
                 driver=driver,
             )
@@ -215,7 +257,7 @@ def collect_abstract(
                 entry_elsevier,
                 library,
                 entry_metadata_list,
-                need_selenium=True,
+                need_webdriver=True,
                 req_itv=req_itv,
                 driver=driver,
             )
@@ -239,12 +281,26 @@ def collect_abstract(
                 entry_iospress,
                 library,
                 entry_metadata_list,
-                need_selenium=True,
+                need_webdriver=True,
                 req_itv=req_itv,
                 driver=driver,
             )
-        # 关闭浏览器
-        driver.quit()
+        elif publisher == "acm":
+            browser_config = zd.Config(
+                headless=False,
+                user_data_dir=cookie_path,
+                browser_executable_path=chrome_path,
+            )
+            browser = await zd.start(config=browser_config)
+            library = await collect_abstract_impl_acm(
+                entry_acm,
+                library,
+                entry_metadata_list,
+                need_webdriver=True,
+                req_itv=req_itv,
+                driver=browser,
+            )
+        await browser.stop()
     else:
         selected_module = publisher_module_dict.get(publisher)
         if selected_module is not None:
@@ -252,7 +308,7 @@ def collect_abstract(
                 selected_module,
                 library,
                 entry_metadata_list,
-                need_selenium=False,
+                need_webdriver=False,
                 req_itv=req_itv,
             )
         else:
@@ -276,12 +332,14 @@ def collect_abstract_from_dblp_pkl(
 ):
     with open(pkl_filename, "rb") as f:
         entry_metadata_list = pickle.load(f)
-    collect_abstract(
-        name,
-        entry_metadata_list,
-        export_bib_path,
-        publisher,
-        req_itv,
+    asyncio.run(
+        collect_abstract(
+            name,
+            entry_metadata_list,
+            export_bib_path,
+            publisher,
+            req_itv,
+        )
     )
 
 
