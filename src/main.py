@@ -300,7 +300,7 @@ async def collect_abstract(
                 req_itv=req_itv,
                 driver=browser,
             )
-        await browser.stop()
+            await browser.stop()
     else:
         selected_module = publisher_module_dict.get(publisher)
         if selected_module is not None:
