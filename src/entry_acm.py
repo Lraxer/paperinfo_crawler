@@ -46,8 +46,8 @@ async def get_abs_impl(url: str, driver:zd.Browser) -> str:
     )
     
     tab = await driver.get(url)
-    await tab.get_content()
     await tab.wait_for(selector=css_selector, timeout=10)
+    await tab.get_content()
 
     abstract = ""
     abs_elems = await tab.select_all(css_selector)
