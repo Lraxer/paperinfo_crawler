@@ -77,13 +77,15 @@ async def get_full_abstract(url: str, driver, req_itv: float) -> str:
 #     )
 
 #     browser = await zd.start(config=config)
-#     tab = await browser.get("https://dl.acm.org/doi/10.1145/3690624.3709243")
+#     tab = await browser.get("https://dl.acm.org/doi/10.1145/3690624.3709199")
 #     await tab.get_content()
 #     await tab.wait_for(selector=css_selector, timeout=10)
 #     abs_elems = await tab.select_all(css_selector)
-#     print(abs_elems)
-#     for abs_elem in abs_elems:
-#         print(abs_elem.text_all)
+#     abstract = " ".join(abs_elem.text_all for abs_elem in abs_elems)
+#     print(abstract)
+#     # print(abs_elems)
+#     # for abs_elem in abs_elems:
+#         # print(abs_elem.text_all)
 
 
 
