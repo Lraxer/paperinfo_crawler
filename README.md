@@ -10,13 +10,18 @@
 
 ## 安装
 
+**Python 版本要求：3.10 及以上。**
+
+由于 ACM 的反爬措施增强，本项目正在从 selenium 切换到 zendriver，针对 ACM，已临时编写了 zendriver 版本。后续将彻底完成切换，减少对 selenium 的依赖。
+
 ### 下载 chromedriver
 
 1. 安装并打开 Goole Chrome 浏览器，查看浏览器的版本号；
 2. 下载和浏览器版本对应的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，解压缩到一个目录；
 3. 在 `settings.py` 中修改 `chromedriver_path`，填写 `chromedriver` 可执行文件的路径。
 4. 在 `settings.py` 中修改 `cookie_path`，创建一个目录用于保存 cookie，并填写该目录的路径。
-5. 在 `settings.py` 中修改 `user_agent`，与浏览器的大版本号一致。
+5. 在 `settings.py` 中修改 `chrome_path`，填写 Chrome 浏览器的可执行文件路径。
+6. 在 `settings.py` 中修改 `user_agent`，与浏览器的大版本号一致。
 
 **注意，chromedriver 的版本必须与你的系统的 chrome 浏览器版本一致（或者大版本一致）。** 当出现类似下面的错误时，下载新版本的 chromedriver。
 
@@ -78,30 +83,18 @@ python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 
 ## 已知问题
 
-### Elsevier 等出版商网站需人机验证
+### 人机验证与爬取失败
 
-首先，尝试修改 `settings.py` 中的 `user_agent`，将 `Chrome/131.0.0.0` 的这个版本号修改为与你的浏览器版本一致。
-
-如果还是需要验证，这个问题一般是网络原因导致的。如果你正在使用网络代理，说明你的代理 IP 纯净度较差。可以考虑更换代理，或者尝试将 `elsevier.com` 和 `sciencedirect.com` 以 `DOMAIN-SUFFIX` 的策略走 `DIRECT` 连接。
-
-另一个可能的解决思路（没有经过测试）是，先注释掉 `collect_abstract` 函数里，`elsevier` 处理代码的 `--headless=new`，并指定 chromedriver 的用户数据存放地址：
-
-```python
-chrome_options.add_argument("--user-data-dir={}".format(cookie_path))
-```
-
-在打开的网页中，手动通过人机验证，后面利用 cookie 绕过验证流程。
-
-也可以直接利用 Google Chrome 的用户数据完成验证。参考[这个链接](https://stackoverflow.com/a/67389309)：
-
-```python
-options.add_argument(r"--user-data-dir=C:\path\to\chrome\user\data") #e.g. C:\Users\You\AppData\Local\Google\Chrome\User Data
-options.add_argument(r'--profile-directory=YourProfileDir') #e.g. Default
-```
-
-但这个直接用 Chrome 用户数据的问题是，运行这个脚本需要关闭 Chrome 浏览器，防止同时读写同一个 profile。
+首先需要保证使用的 IP 纯净度较高。如果问题仍存在，将 Zendriver 的 `headless` 参数设置为 `False`，相比 `True` 的成功率更高。
 
 ### 其他问题
 
 1. 部分带有公式的论文摘要可能无法正确爬取，公式不能正确显示。这是因为网页上的公式是经过渲染后的，爬到的只是渲染前的原始状态。
 2. 部分论文尚未收录在 doi.org 网站上，因此无法通过该链接重定向到出版社的论文页面获取摘要。
+
+## TODO
+
+- [ ] 从 selenium 切换到 zendriver
+  - [ ] IEEE
+  - [ ] Elsevier
+  - [ ] IOS Press
