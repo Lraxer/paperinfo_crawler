@@ -52,9 +52,7 @@ def collect_conf_metadata(
     if conf_url is None:
         logger.error("Cannot get dblp URL for {}, {}".format(name, year))
         return []
-    entry_metadata_list = dblp.get_dblp_page_content(
-        conf_url, dblp_req_itv, "conf"
-    )
+    entry_metadata_list = dblp.get_dblp_page_content(conf_url, dblp_req_itv, "conf")
     logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
     if len(entry_metadata_list) <= 0:
         logger.warning("No paper found in {}, {}".format(name, year))
@@ -121,11 +119,9 @@ def collect_abstract_impl(
     req_itv: float = 10,
     driver=None,
 ):
-    progress_abstract = tqdm(total=len(entry_metadata_list))
     abs_session = requests.Session()
-    # for ieee papers
-    for entry_metadata in entry_metadata_list:
         if need_selenium:
+    for entry_metadata in tqdm(entry_metadata_list):
             if entry_func == entry_iospress:
                 # special case for iospress
                 abstract = entry_func.get_full_abstract(
@@ -157,10 +153,8 @@ def collect_abstract_impl(
                 'Cannot collect abstract of paper "{}".'.format(entry_metadata[0])
             )
         library.add(tmp_library.blocks)
-        progress_abstract.update(1)
 
     abs_session.close()
-    progress_abstract.close()
     return library
 
 
@@ -175,7 +169,12 @@ def collect_abstract(
 
     logger.debug("Publisher: {}.".format(publisher))
 
-    if publisher == "ieee" or publisher == "elsevier" or publisher == "iospress":
+    if (
+        publisher == "ieee"
+        or publisher == "elsevier"
+        or publisher == "iospress"
+        or publisher == "acm"
+    ):
         chrome_service = Service(chromedriver_path)
         chrome_options = Options()
         chrome_options.add_argument("--disable-gpu")
@@ -187,8 +186,6 @@ def collect_abstract(
             # chrome_options.add_argument("--window-size=1920x1080")
             # 使 selenium 只输出wanrning及以上的日志信息
             chrome_options.add_argument("log-level=1")
-            # headless模式下需要改UA
-            chrome_options.add_argument("user-agent={}".format(user_agent))
             # 创建一个新的Chrome浏览器实例
             driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 

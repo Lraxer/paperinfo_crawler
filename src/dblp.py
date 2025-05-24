@@ -33,6 +33,9 @@ def get_conf_url(name: str, year: str) -> str:
     elif name == "conext" and year == "2023":
         # conext 2023会议URL特殊：conext/conext[year]c.html
         conf_url = "{}conf/{}/{}{}c.html".format(dblp_url, name, name, year)
+    elif name == "kdd" and year == "2025":
+        # kdd/kdd2025-1.html
+        conf_url = "{}conf/{}/{}{}-1.html".format(dblp_url, name, name, year)
     else:
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
 
