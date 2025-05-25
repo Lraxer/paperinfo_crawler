@@ -44,6 +44,11 @@ def get_conf_url(name: str, year: str) -> str:
     elif name == "kdd" and year == "2025":
         # kdd/kdd2025-1.html
         conf_url = "{}conf/{}/{}{}-1.html".format(dblp_url, name, name, year)
+    elif name == "sigmod" and year.isdigit() and int(year) >= 2023:
+        conf_url = "{}journals/pacmmod/pacmmod{}.html".format(
+            dblp_url, int(year) - 2022
+        )
+        entry_type_in_url = "journal"
     else:
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
 
