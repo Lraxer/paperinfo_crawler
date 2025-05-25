@@ -1,6 +1,5 @@
 requests
 beautifulsoup4
-selenium
 wheel
 bibtexparser==2.0.0b7
 tqdm

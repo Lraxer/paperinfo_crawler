@@ -1,16 +1,13 @@
-import requests
 import logging
-from settings import req_headers
-from bs4 import BeautifulSoup
-from request_wrap import make_request
 from time import sleep
 from urllib.parse import urlparse
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
+import zendriver as zd
+from bs4 import BeautifulSoup
 
-from settings import retry_interval
+from request_wrap import make_request, retry_async
+from settings import req_headers
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -21,52 +18,28 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def retry_sagepub(func):
-    def wrap(*args, **kwargs):
-        for time in range(4):
-            try:
-                result = func(*args, **kwargs)
-                return result
-            except Exception as e:
-                if time < 3:
-                    logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
-                            args[0], e.__class__.__name__, time + 1, retry_interval
-                        )
-                    )
-                    sleep(retry_interval)
-                # let driver clear cookies.
-                args[1].delete_all_cookies()
-        return None
+@retry_async
+async def get_abs_impl(url: str, driver: zd.Browser) -> str:
+    button_css_selector = "button[id='onetrust-reject-all-handler']"
+    css_selector = "section[id='abstract'] > div[role='paragraph']"
 
-    return wrap
+    tab = await driver.get(url)
+    await tab.wait(5)
 
+    if await tab.query_selector(button_css_selector) is not None:
+        cookie_policy_button = await tab.select(button_css_selector)
+        await cookie_policy_button.click()
 
-@retry_sagepub
-def get_abs_from_sagepub(url: str, driver) -> str:
-    driver.get(url)
-    # 等待最多60秒
-    wait = WebDriverWait(driver, 60)
-    button_res_list = driver.find_elements(
-        By.CSS_SELECTOR, "button[id='onetrust-reject-all-handler']"
-    )
-    if button_res_list != []:
-        cookie_policy_button = wait.until(
-            EC.element_to_be_clickable(button_res_list[0])
-        )
-        # driver.execute_script("arguments[0].click();", button_res_list[0])
-        cookie_policy_button.click()
-    abs_tag = wait.until(
-        EC.presence_of_element_located(
-            (By.CSS_SELECTOR, "section[id='abstract'] > div[role='paragraph']")
-        )
-    )
-    abstract = abs_tag.text
+    await tab.wait_for(selector=css_selector, timeout=15)
+    await tab.get_content()
+
+    abs_elems = await tab.select_all(css_selector)
+    abstract = " ".join(abs_elem.text_all for abs_elem in abs_elems)
     return abstract
 
 
-def get_full_abstract(
-    abs_session: requests.Session, url: str, req_itv: float, driver
+async def get_full_abstract(
+    abs_session: requests.Session, url: str, req_itv: float, driver: zd.Browser
 ) -> str:
     abstract = None
 
@@ -95,24 +68,34 @@ def get_full_abstract(
     # TODO not sure whether we should keep "journals" or not
     elif parsed_domain == "journals.sagepub.com":
         # sagepub is a new website
-        abstract = get_abs_from_sagepub(res.url, driver)
+        abstract = await get_abs_impl(res.url, driver)
     else:
         return None
 
     return abstract
 
 
-if __name__ == "__main__":
+async def main():
+    config = zd.Config(
+        headless=False,
+        user_data_dir=cookie_path,
+        browser_executable_path=chrome_path,
+    )
+
+    browser = await zd.start(config=config)
+
     with requests.Session() as s:
-        # abstract = get_full_abstract(
-        #     s,
-        #     "https://content.iospress.com/articles/journal-of-computer-security/jcs230047",
-        #     0,
-        # )
-        # TODO requests被反爬，返回403。postman, httpx也不行。maybe selenium
-        abstract = get_full_abstract(
-            s,
-            "https://journals.sagepub.com/doi/10.3233/JCS-220031",
-            0,
+        abstract = await get_full_abstract(
+            s, "https://journals.sagepub.com/doi/10.3233/JCS-220031", 0, browser
         )
-        print(abstract)
+
+    await browser.stop()
+    print(abstract)
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    from settings import chrome_path, cookie_path
+
+    asyncio.run(main())

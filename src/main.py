@@ -1,34 +1,26 @@
+import argparse
+import asyncio
+import logging
+import pickle
+
+import bibtexparser
 import bibtexparser.model
-import entry_ieee
+import requests
+import zendriver as zd
+from tqdm import tqdm
+
+import dblp
 import entry_acm
 import entry_elsevier
+import entry_ieee
+import entry_iospress
 import entry_ndss
 import entry_springer
 import entry_usenix
-import entry_iospress
-import dblp
-import bibtexparser
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from settings import (
-    user_agent,
-    chromedriver_path,
-    cj_pub_dict,
-    cookie_path,
-    chrome_path,
-)
-import logging
-import argparse
-import pickle
-from tqdm import tqdm
-import requests
-import zendriver as zd
-import asyncio
+from settings import chrome_path, cj_pub_dict, cookie_path
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-# TODO Use FileHandler instead.
 handler = logging.StreamHandler()
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -73,14 +65,15 @@ def collect_conf_metadata(
             pickle.dump(entry_metadata_list, f)
 
     if need_abstract:
-        collect_abstract(
-            name,
-            entry_metadata_list,
-            export_bib_path,
-            publisher,
-            req_itv,
+        asyncio.run(
+            collect_abstract(
+                name,
+                entry_metadata_list,
+                export_bib_path,
+                publisher,
+                dblp_req_itv,
+            )
         )
-
     return entry_metadata_list
 
 
@@ -108,18 +101,20 @@ def collect_journal_metadata(
             pickle.dump(entry_metadata_list, f)
 
     if need_abstract:
-        collect_abstract(
-            name,
-            entry_metadata_list,
-            export_bib_path,
-            publisher,
-            req_itv,
+        asyncio.run(
+            collect_abstract(
+                name,
+                entry_metadata_list,
+                export_bib_path,
+                publisher,
+                req_itv,
+            )
         )
 
     return entry_metadata_list
 
 
-def collect_abstract_impl(
+async def collect_abstract_impl(
     entry_func,
     library: bibtexparser.Library,
     entry_metadata_list: list,
@@ -127,57 +122,25 @@ def collect_abstract_impl(
     req_itv: float = 10,
     driver=None,
 ):
-    abs_session = requests.Session()
     for entry_metadata in tqdm(entry_metadata_list):
         if need_webdriver:
             if entry_func == entry_iospress:
                 # special case for iospress
-                abstract = entry_func.get_full_abstract(
+                abs_session = requests.Session()
+                abstract = await entry_func.get_full_abstract(
                     abs_session, entry_metadata[1], req_itv, driver
                 )
+                abs_session.close()
             else:
-                abstract = entry_func.get_full_abstract(
+                abstract = await entry_func.get_full_abstract(
                     entry_metadata[1], driver, req_itv
                 )
         else:
+            abs_session = requests.Session()
             abstract = entry_func.get_full_abstract(
                 abs_session, entry_metadata[1], req_itv
             )
-        # if parse failed, the number of entries in library is 0, print warning and process the next paper.
-        tmp_library = bibtexparser.parse_string(entry_metadata[2])
-        if len(tmp_library.entries) != 1:
-            logger.warning(
-                'Cannot parse bibtex string to entry of paper "{}", string is: {}.'.format(
-                    entry_metadata[0], repr(entry_metadata[2])
-                )
-            )
-            continue
-
-        if abstract is not None:
-            abstract_field = bibtexparser.model.Field("abstract", repr(abstract)[1:-1])
-            tmp_library.entries[0].set_field(abstract_field)
-        else:
-            logger.warning(
-                'Cannot collect abstract of paper "{}".'.format(entry_metadata[0])
-            )
-        library.add(tmp_library.blocks)
-
-    abs_session.close()
-    return library
-
-
-async def collect_abstract_impl_acm(
-    entry_func,
-    library: bibtexparser.Library,
-    entry_metadata_list: list,
-    need_webdriver: bool,
-    req_itv: float = 10,
-    driver=None,
-):
-    for entry_metadata in tqdm(entry_metadata_list):
-        abstract = await entry_func.get_full_abstract(
-            entry_metadata[1], driver, req_itv
-        )
+            abs_session.close()
         # if parse failed, the number of entries in library is 0, print warning and process the next paper.
         tmp_library = bibtexparser.parse_string(entry_metadata[2])
         if len(tmp_library.entries) != 1:
@@ -211,88 +174,49 @@ async def collect_abstract(
 
     logger.debug("Publisher: {}.".format(publisher))
 
-    if (
-        publisher == "ieee"
-        or publisher == "elsevier"
-        or publisher == "iospress"
-        or publisher == "acm"
-    ):
-        chrome_service = Service(chromedriver_path)
-        chrome_options = Options()
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("user-agent={}".format(user_agent))
-
-        if publisher == "ieee":
-            # 设置headless浏览器选项
-            chrome_options.add_argument("--headless=new")
-            # chrome_options.add_argument("--window-size=1920x1080")
-            # 使 selenium 只输出wanrning及以上的日志信息
-            chrome_options.add_argument("log-level=1")
-            # 创建一个新的Chrome浏览器实例
-            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-
-            library = collect_abstract_impl(
-                entry_ieee,
-                library,
-                entry_metadata_list,
-                need_webdriver=True,
-                req_itv=req_itv,
-                driver=driver,
-            )
-        elif publisher == "elsevier":
-            chrome_options.add_argument("--headless=new")
-            # 如果遇到elsevier反爬虫，可以尝试注释掉headless，手动点击登录，利用cookie绕过人机验证
-            chrome_options.add_argument("--user-data-dir={}".format(cookie_path))
-            chrome_options.add_argument("--ignore-certificate-errors")
-            chrome_options.add_argument("--ignore-ssl-errors")
-            # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
-            chrome_options.add_argument("log-level=3")
-            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-            # disable window.navigtor.webdriver
-            driver.execute_script(
-                "Object.defineProperties(navigator,{webdriver:{get:()=>undefined}})"
-            )
-
-            library = collect_abstract_impl(
+    if publisher == "ieee":
+        browser_config = zd.Config(
+            headless=True,
+            user_data_dir=cookie_path,
+            browser_executable_path=chrome_path,
+        )
+        browser = await zd.start(config=browser_config)
+        library = await collect_abstract_impl(
+            entry_ieee,
+            library,
+            entry_metadata_list,
+            need_webdriver=True,
+            req_itv=req_itv,
+            driver=browser,
+        )
+        await browser.stop()
+    elif publisher == "elsevier" or publisher == "iospress" or publisher == "acm":
+        browser_config = zd.Config(
+            headless=False,
+            user_data_dir=cookie_path,
+            browser_executable_path=chrome_path,
+        )
+        browser = await zd.start(config=browser_config)
+        if publisher == "elsevier":
+            library = await collect_abstract_impl(
                 entry_elsevier,
                 library,
                 entry_metadata_list,
                 need_webdriver=True,
                 req_itv=req_itv,
-                driver=driver,
+                driver=browser,
             )
         elif publisher == "iospress":
-            # pretend to be a normal user
-            chrome_options.add_argument("--window-size=1920,1080")
-            chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-
-            chrome_options.add_argument("--headless=new")
-            chrome_options.add_argument("--ignore-certificate-errors")
-            chrome_options.add_argument("--ignore-ssl-errors")
-            # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
-            chrome_options.add_argument("log-level=3")
-            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-            # disable window.navigtor.webdriver
-            driver.execute_script(
-                "Object.defineProperties(navigator,{webdriver:{get:()=>undefined}})"
-            )
-
-            library = collect_abstract_impl(
+            library = await collect_abstract_impl(
                 entry_iospress,
                 library,
                 entry_metadata_list,
                 need_webdriver=True,
                 req_itv=req_itv,
-                driver=driver,
+                driver=browser,
             )
         elif publisher == "acm":
-            browser_config = zd.Config(
-                headless=False,
-                user_data_dir=cookie_path,
-                browser_executable_path=chrome_path,
-            )
-            browser = await zd.start(config=browser_config)
-            library = await collect_abstract_impl_acm(
+            library = await collect_abstract_impl(
                 entry_acm,
                 library,
                 entry_metadata_list,
@@ -300,11 +224,11 @@ async def collect_abstract(
                 req_itv=req_itv,
                 driver=browser,
             )
-            await browser.stop()
+        await browser.stop()
     else:
         selected_module = publisher_module_dict.get(publisher)
         if selected_module is not None:
-            library = collect_abstract_impl(
+            library = await collect_abstract_impl(
                 selected_module,
                 library,
                 entry_metadata_list,

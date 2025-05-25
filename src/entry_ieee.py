@@ -1,11 +1,9 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import logging
 from time import sleep
 
-import logging
+import zendriver as zd
 
-from settings import retry_interval
+from request_wrap import retry_async
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -16,58 +14,53 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def retry_ieee(func):
-    def wrap(*args, **kwargs):
-        for time in range(4):
-            try:
-                result = func(*args, **kwargs)
-                return result
-            except Exception as e:
-                if time < 3:
-                    logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
-                            args[0], e.__class__.__name__, time + 1, retry_interval
-                        )
-                    )
-                    sleep(retry_interval)
-                # let driver clear cookies.
-                args[1].delete_all_cookies()
-        return None
+@retry_async
+async def get_abs_impl(url: str, driver: zd.Browser) -> str:
+    # "Show More" button of abstract
+    button_css_selector = "a.abstract-text-view-all"
+    css_selector = "div[xplmathjax]"
 
-    return wrap
-
-
-@retry_ieee
-def get_abs_impl(url: str, driver) -> str:
     # 访问目标网页
-    driver.get(url)
-    # 等待最多10秒
-    wait = WebDriverWait(driver, 5)
-    # 发现反爬
-    if "Request Rejected" in driver.title:
-        print("Anti-crawler found. Chaning UA and more operations might be processed.")
-        return None
+    tab = await driver.get(url)
+    await tab.wait(5)
+    await tab.wait_for(selector=css_selector, timeout=10)
 
-    abstract = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "div[xplmathjax]"))
-    )
-    button_res_list = driver.find_elements(By.CLASS_NAME, "abstract-text-view-all")
+    if await tab.query_selector(button_css_selector) is not None:
+        show_more_button = await tab.select(button_css_selector)
+        await show_more_button.click()
 
-    if button_res_list != []:
-        show_more_button = wait.until(
-            EC.element_to_be_clickable((By.CLASS_NAME, "abstract-text-view-all"))
-        )
-        driver.execute_script("arguments[0].scrollIntoView();", show_more_button)
-        show_more_button.click()
+    await tab.get_content()
 
-    abstract = driver.find_element(By.CSS_SELECTOR, "div[xplmathjax]").text
+    abs_elem = await tab.select(css_selector)
+    abstract = abs_elem.text_all
     return abstract
 
 
-def get_full_abstract(url: str, driver, req_itv: float) -> str:
+async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str:
     if url == "":
         return None
 
     sleep(req_itv)
-    abstract = get_abs_impl(url, driver)
+    abstract = await get_abs_impl(url, driver)
     return abstract
+
+
+# async def main():
+#     config = zd.Config(
+#         headless=True,
+#         user_data_dir=cookie_path,
+#         browser_executable_path=chrome_path,
+#     )
+
+#     browser = await zd.start(config=config)
+#     abstract = await get_full_abstract(
+#         "https://doi.org/10.1109/TDSC.2021.3129512", browser, 0
+#     )
+#     await browser.stop()
+#     print(abstract)
+
+
+# if __name__ == "__main__":
+#     import asyncio
+#     from settings import cookie_path, chrome_path
+#     asyncio.run(main())

@@ -1,9 +1,11 @@
-import requests
-from time import sleep
-from settings import req_headers
-from bs4 import BeautifulSoup
 import logging
+from time import sleep
+
+import requests
+from bs4 import BeautifulSoup
+
 from request_wrap import make_request
+from settings import req_headers
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -28,7 +30,7 @@ def get_abstract_base(
     # 请求失败
     if res is None:
         return None
-    
+
     if res.status_code != 200:
         logger.warning(
             "Cannot access {} , status code: {}.".format(url, res.status_code)

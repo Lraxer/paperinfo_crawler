@@ -1,5 +1,7 @@
-import requests
 import logging
+
+import requests
+
 from get_abstract_base import get_abstract_base
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,7 @@
-import requests
 import logging
 from time import sleep
+
+import requests
 
 from settings import retry_interval
 
@@ -41,3 +42,25 @@ def make_request(session: requests.Session, url: str, headers=None):
     else:
         res = session.get(url, headers=headers)
     return res
+
+
+def retry_async(func):
+    async def wrap(*args, **kwargs):
+        for time in range(4):
+            try:
+                result = await func(*args, **kwargs)
+                return result
+            except Exception as e:
+                if time < 3:
+                    # ProtocolException seems to be a known issue, see
+                    # https://github.com/stephanlensky/zendriver/issues/76
+                    logger.warning(
+                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
+                            args[0], e.__class__.__name__, time + 1, retry_interval
+                        )
+                    )
+                    # logger.warning("{}".format(repr(e)))
+                    sleep(retry_interval)
+        return None
+
+    return wrap

@@ -1,11 +1,13 @@
-import requests
-from settings import dblp_url
-from bs4 import BeautifulSoup
-import bs4
-from tqdm import tqdm
-from time import sleep
 import logging
+from time import sleep
+
+import bs4
+import requests
+from bs4 import BeautifulSoup
+from tqdm import tqdm
+
 from request_wrap import make_request
+from settings import dblp_url
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

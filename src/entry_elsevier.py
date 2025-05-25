@@ -1,11 +1,9 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import logging
 from time import sleep
 
-import logging
+import zendriver as zd
 
-from settings import retry_interval
+from request_wrap import retry_async
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -16,73 +14,47 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def retry_elsevier(func):
-    def wrap(*args, **kwargs):
-        for time in range(4):
-            try:
-                result = func(*args, **kwargs)
-                return result
-            except Exception as e:
-                if time < 3:
-                    logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
-                            args[0], e.__class__.__name__, time + 1, retry_interval
-                        )
-                    )
-                    sleep(retry_interval)
-                # let driver clear cookies.
-                args[1].delete_all_cookies()
-        return None
-
-    return wrap
-
-
-@retry_elsevier
-def get_abs_impl(url: str, driver) -> str:
+@retry_async
+async def get_abs_impl(url: str, driver: zd.Browser) -> str:
+    css_selector = "div.abstract.author > div > div"
+    
     # 访问目标网页
-    driver.get(url)
-    # 等待最多60秒
-    wait = WebDriverWait(driver, 60)
-    abs_tag = wait.until(
-        EC.presence_of_element_located(
-            (By.CSS_SELECTOR, "div.abstract.author > div > div")
-        )
-    )
-    abstract = abs_tag.text
+    tab = await driver.get(url)
+    await tab.wait(5)
+    await tab.wait_for(selector=css_selector, timeout=15)
+    await tab.get_content()
+
+    abs_elems = await tab.select_all(css_selector)
+    abstract = " ".join(abs_elem.text_all for abs_elem in abs_elems)
     return abstract
 
 
-def get_full_abstract(url: str, driver, req_itv: float) -> str:
+async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str:
     if url == "":
         return None
 
     sleep(req_itv)
-    abstract = get_abs_impl(url, driver)
+    abstract = await get_abs_impl(url, driver)
     return abstract
 
 
-# if __name__ == "__main__":
-#     from selenium.webdriver.chrome.options import Options
-#     from selenium.webdriver.chrome.service import Service
-#     from settings import chromedriver_path, user_agent
-#     from selenium import webdriver
+async def main():
+    config = zd.Config(
+        headless=True,
+        user_data_dir=cookie_path,
+        browser_executable_path=chrome_path,
+    )
+    browser = await zd.start(config=config)
+    abstract = await get_full_abstract(
+        "https://doi.org/10.1016/j.cose.2023.103489", browser, 0
+    )
+    await browser.stop()
+    print(repr(abstract))
 
-#     chrome_options = Options()
-#     # 只用headless会被识别
-#     # chrome_options.add_argument("--headless=new")
-#     chrome_options.add_argument("user-agent={}".format(user_agent))
-#     chrome_options.add_argument("--ignore-certificate-errors")
-#     chrome_options.add_argument("--ignore-ssl-errors")
-#     chrome_options.add_argument("--disable-gpu")
-#     # 忽略 ssl_client_socket_impl.cc handshake failed error 错误
-#     chrome_options.add_argument("log-level=3")
-#     chrome_options.add_argument("--user-data-dir=D:/pycode/chromedriver-user-data/")
-#     # headless模式下需要改UA
-#     # 创建一个新的Chrome浏览器实例
-#     chrome_service = Service(chromedriver_path)
-#     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-#     abstract = get_full_abstract(
-#         "https://doi.org/10.1016/j.cose.2023.103489", driver, 0
-#     )
 
-#     print(repr(abstract))
+if __name__ == "__main__":
+    import asyncio
+
+    from settings import chrome_path, cookie_path
+
+    asyncio.run(main())

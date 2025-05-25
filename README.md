@@ -10,27 +10,18 @@
 
 ## 安装
 
-**Python 版本要求：3.10 及以上。**
+Python 版本要求：3.10 及以上。
 
-由于 ACM 的反爬措施增强，本项目正在从 selenium 切换到 zendriver，针对 ACM，已临时编写了 zendriver 版本。后续将彻底完成切换，减少对 selenium 的依赖。
+### 变量设置
 
-### 下载 chromedriver
-
-1. 安装并打开 Goole Chrome 浏览器，查看浏览器的版本号；
-2. 下载和浏览器版本对应的 [chromedriver](https://googlechromelabs.github.io/chrome-for-testing/)，解压缩到一个目录；
-3. 在 `settings.py` 中修改 `chromedriver_path`，填写 `chromedriver` 可执行文件的路径。
-4. 在 `settings.py` 中修改 `cookie_path`，创建一个目录用于保存 cookie，并填写该目录的路径。
-5. 在 `settings.py` 中修改 `chrome_path`，填写 Chrome 浏览器的可执行文件路径。
-6. 在 `settings.py` 中修改 `user_agent`，与浏览器的大版本号一致。
-
-**注意，chromedriver 的版本必须与你的系统的 chrome 浏览器版本一致（或者大版本一致）。** 当出现类似下面的错误时，下载新版本的 chromedriver。
-
-```
-selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version [xxx]
-Current browser version [yyy] with binary path [...]
-```
+1. 安装 Goole Chrome 浏览器，记录 Chrome 可执行文件的路径，例如，Windows 系统下一般是 `C:/Program Files/Google/Chrome/Application/chrome.exe`。
+2. 在 `settings.py` 中修改 `chrome_path`，填写 `chrome.exe` 可执行文件的路径。
+3. 在 `settings.py` 中修改 `cookie_path`，创建一个目录用于保存 cookie，并填写该目录的路径。
+4. （可选）修改 `req_headers`，这个字典用于 requests 库发送请求时设置请求头。
 
 ### 设置 Python 虚拟环境与安装依赖
+
+你可以使用 `venv` 或者 `uv` 等工具创建虚拟环境。
 
 ```powershell
 # For Windows
@@ -47,8 +38,6 @@ python -m venv ./venv
 source ./venv/bin/activate
 pip install -r requirements-no-version.txt
 ```
-
-**检查一下 `bibtexpaser` 的版本是不是 2.0.0 及以上。如果不是，卸载这个包之后，通过 `pip install --pre bibtexparser` 重新安装。**
 
 ## 运行
 
@@ -77,7 +66,7 @@ python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 
 ## 测试环境
 
-由于设备有限，当前只在 Windows 11 系统下，Python 3.9.7 环境运行过脚本。该脚本理论上不受系统限制。
+由于设备有限，当前只在 Windows 11 系统下，Python 3.11.9 环境下运行过脚本。该脚本理论上不受系统限制。
 
 **爬取的速度，即 `-d` 和 `-t` 参数不应太小，以免被封禁。**
 
@@ -85,16 +74,12 @@ python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 
 ### 人机验证与爬取失败
 
-首先需要保证使用的 IP 纯净度较高。如果问题仍存在，将 Zendriver 的 `headless` 参数设置为 `False`，相比 `True` 的成功率更高。
+1. 首先需要保证使用的 IP 具有较高纯净度。
+2. 将 Zendriver 的 `headless` 参数设置为 `False`，相比 `True` 的成功率更高。
+3. 删除 `settings.py` 中，`cookie_path` 变量指定的目录下的所有文件，重新运行。
 
 ### 其他问题
 
-1. 部分带有公式的论文摘要可能无法正确爬取，公式不能正确显示。这是因为网页上的公式是经过渲染后的，爬到的只是渲染前的原始状态。
+1. 部分带有公式的论文摘要可能无法正确爬取，公式不能正确显示。这是因为网页上的公式经过了渲染，爬到的只是渲染前的原始状态。
 2. 部分论文尚未收录在 doi.org 网站上，因此无法通过该链接重定向到出版社的论文页面获取摘要。
-
-## TODO
-
-- [ ] 从 selenium 切换到 zendriver
-  - [ ] IEEE
-  - [ ] Elsevier
-  - [ ] IOS Press
+3. pvldb 目前无法予以支持。dblp 的链接直接跳转到了 PDF 文件。而 pvldb 官网中很多论文链接是失效的。

@@ -1,7 +1,8 @@
-import requests
 import logging
-from get_abstract_base import get_abstract_base
 
+import requests
+
+from get_abstract_base import get_abstract_base
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

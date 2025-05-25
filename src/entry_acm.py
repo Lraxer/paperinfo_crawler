@@ -1,11 +1,9 @@
 import logging
-from settings import retry_interval
 from time import sleep
 
-import asyncio
-from settings import cookie_path
-
 import zendriver as zd
+
+from request_wrap import retry_async
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -16,47 +14,24 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def retry_acm(func):
-    async def wrap(*args, **kwargs):
-        for time in range(4):
-            try:
-                result = await func(*args, **kwargs)
-                return result
-            except Exception as e:
-                if time < 3:
-                    # ProtocolException seems to be a known issue, see
-                    # https://github.com/stephanlensky/zendriver/issues/76
-                    logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
-                            args[0], e.__class__.__name__, time + 1, retry_interval
-                        )
-                    )
-                    # logger.warning("{}".format(repr(e)))
-                    sleep(retry_interval)
-        return None
-
-    return wrap
-
-
-@retry_acm
-async def get_abs_impl(url: str, driver:zd.Browser) -> str:
-    # 访问目标网页
+@retry_async
+async def get_abs_impl(url: str, driver: zd.Browser) -> str:
     css_selector = (
         r"div.core-container > section[id='abstract'] > div[role='paragraph']"
     )
-    
+
+    # 访问目标网页
     tab = await driver.get(url)
+    await tab.wait(5)
     await tab.wait_for(selector=css_selector, timeout=10)
     await tab.get_content()
 
     abs_elems = await tab.select_all(css_selector)
     abstract = " ".join(abs_elem.text_all for abs_elem in abs_elems)
-    # await tab.close()
-
     return abstract
 
 
-async def get_full_abstract(url: str, driver, req_itv: float) -> str:
+async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str:
     if url == "":
         return None
 
@@ -64,29 +39,23 @@ async def get_full_abstract(url: str, driver, req_itv: float) -> str:
     abstract = await get_abs_impl(url, driver)
     return abstract
 
-# async def main():
-#     css_selector = (
-#         r"div.core-container > section[id='abstract'] > div[role='paragraph']"
-#     )
 
+# async def main():
 #     config = zd.Config(
 #         headless=False,
 #         user_data_dir=cookie_path,
-#         browser_executable_path=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+#         browser_executable_path=chrome_path,
 #     )
 
 #     browser = await zd.start(config=config)
-#     tab = await browser.get("https://dl.acm.org/doi/10.1145/3690624.3709199")
-#     await tab.get_content()
-#     await tab.wait_for(selector=css_selector, timeout=10)
-#     abs_elems = await tab.select_all(css_selector)
-#     abstract = " ".join(abs_elem.text_all for abs_elem in abs_elems)
+#     abstract = await get_full_abstract(
+#         "https://dl.acm.org/doi/10.1145/3690624.3709199", browser, 0
+#     )
+#     await browser.stop()
 #     print(abstract)
-#     # print(abs_elems)
-#     # for abs_elem in abs_elems:
-#         # print(abs_elem.text_all)
-
 
 
 # if __name__ == "__main__":
+#     import asyncio
+#     from settings import cookie_path, chrome_path
 #     asyncio.run(main())
