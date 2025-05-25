@@ -48,11 +48,13 @@ def collect_conf_metadata(
     dblp_req_itv: float,
     save_pickle: bool,
 ) -> list:
-    conf_url = dblp.get_conf_url(name, year)
+    conf_url, entry_type_in_url = dblp.get_conf_url(name, year)
     if conf_url is None:
         logger.error("Cannot get dblp URL for {}, {}".format(name, year))
         return []
-    entry_metadata_list = dblp.get_dblp_page_content(conf_url, dblp_req_itv, "conf")
+    entry_metadata_list = dblp.get_dblp_page_content(
+        conf_url, dblp_req_itv, entry_type_in_url
+    )
     logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
     if len(entry_metadata_list) <= 0:
         logger.warning("No paper found in {}, {}".format(name, year))

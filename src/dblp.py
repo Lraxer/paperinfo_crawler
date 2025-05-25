@@ -28,13 +28,19 @@ def get_conf_url(name: str, year: str) -> str:
     Returns:
         str: dblp URL
     """
+    # 有时会议论文集收录在期刊中
+    entry_type_in_url = "conf"
+
     # isdigit() is still unsafe here as it does not equal to test whether string is an integer
     if name == "csfw" and year.isdigit() and int(year) >= 2023:
         # csfw 2023和后续的会议URL特殊：csfw/csf[year].html
         conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name[:-1], year)
-    elif name == "conext" and year == "2023":
-        # conext 2023会议URL特殊：conext/conext[year]c.html
-        conf_url = "{}conf/{}/{}{}c.html".format(dblp_url, name, name, year)
+    elif name == "conext" and year.isdigit() and int(year) >= 2023:
+        # conext 从2023之后，长文收录在期刊 The Proceedings of the ACM on Networking (PAMCNET) journal
+        conf_url = "{}journals/pacmnet/pacmnet{}.html".format(
+            dblp_url, int(year) - 2022
+        )
+        entry_type_in_url = "journal"
     elif name == "kdd" and year == "2025":
         # kdd/kdd2025-1.html
         conf_url = "{}conf/{}/{}{}-1.html".format(dblp_url, name, name, year)
@@ -43,7 +49,7 @@ def get_conf_url(name: str, year: str) -> str:
 
     logger.debug("Request URL: {}".format(conf_url))
 
-    return conf_url
+    return conf_url, entry_type_in_url
 
 
 def get_journal_url(name: str, volume: str) -> str:
