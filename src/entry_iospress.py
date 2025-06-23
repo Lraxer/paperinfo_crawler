@@ -40,7 +40,7 @@ async def get_abs_impl(url: str, driver: zd.Browser) -> str:
 
 async def get_full_abstract(
     abs_session: requests.Session, url: str, req_itv: float, driver: zd.Browser
-) -> str:
+) -> str | None:
     abstract = None
 
     if url == "":
@@ -60,7 +60,7 @@ async def get_full_abstract(
             abs_soup = BeautifulSoup(res.text, "html.parser")
             css_selector = "h1[data-p13n='journal-article']"
             abs_tags = abs_soup.select_one(css_selector)
-            if abs_tags != []:
+            if abs_tags is not None:
                 abstract = abs_tags["data-abstract"]
             # iospress.com对于Special issue等非期刊论文的条目的设置
             if abstract == "No abstract":
@@ -72,7 +72,7 @@ async def get_full_abstract(
     else:
         return None
 
-    return abstract
+    return str(abstract) if abstract is not None else None
 
 
 async def main():

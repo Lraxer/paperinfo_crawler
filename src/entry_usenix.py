@@ -13,7 +13,9 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_full_abstract(abs_session: requests.Session, url: str, req_itv: float) -> str:
+def get_full_abstract(
+    abs_session: requests.Session, url: str, req_itv: float
+) -> str | None:
     # 有两个一样的 `div.field...`，选取第二个标签，
     # 以及最后需要选取全部的p标签
     css_selector = "div.content > div.field.field-name-field-paper-description.field-type-text-long.field-label-above:nth-child(2) > div.field-items > div.field-item.odd > p"

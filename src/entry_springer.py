@@ -13,7 +13,9 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_full_abstract(abs_session: requests.Session, url: str, req_itv: float) -> str:
+def get_full_abstract(
+    abs_session: requests.Session, url: str, req_itv: float
+) -> str | None:
     css_selector = "section[data-title='Abstract'] > div.c-article-section > div.c-article-section__content > p"
 
     abstract = get_abstract_base(abs_session, url, req_itv, css_selector)

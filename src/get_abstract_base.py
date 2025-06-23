@@ -18,7 +18,7 @@ logger.addHandler(handler)
 
 def get_abstract_base(
     abs_session: requests.Session, url: str, req_itv: float, css_selector: str
-) -> str:
+) -> str | None:
     abstract = None
 
     if url == "":

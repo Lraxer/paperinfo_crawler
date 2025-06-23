@@ -18,7 +18,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_conf_url(name: str, year: str) -> str:
+def get_conf_url(name: str, year: str) -> tuple[str, str]:
     """get URL of dblp.
 
     Args:
@@ -101,7 +101,7 @@ def get_paper_title_and_url(entry: bs4.element.Tag) -> list:
 
 def get_paper_bibtex(
     bibtex_session: requests.Session, entry: bs4.element.Tag, req_itv: float
-) -> str:
+) -> str | None:
     """获取bibtex格式的论文元数据
 
     Args:
@@ -124,7 +124,7 @@ def get_paper_bibtex(
 
     if bibtex_url is not None:
         sleep(req_itv)
-        bibtex_res = make_request(bibtex_session, bibtex_url)
+        bibtex_res = make_request(bibtex_session, str(bibtex_url))
         if bibtex_res is None:
             return None
 
@@ -140,7 +140,7 @@ def get_paper_bibtex(
     return None
 
 
-def get_dblp_page_content(url: str, req_itv, type: str) -> list:
+def get_dblp_page_content(url: str, req_itv: float, type: str) -> list:
     """获取页面中的论文网址
 
     Args:
@@ -186,5 +186,5 @@ def get_dblp_page_content(url: str, req_itv, type: str) -> list:
 
 
 if __name__ == "__main__":
-    metadata_list = get_dblp_page_content(get_conf_url("sp", str(2023)), 5, "conf")
+    metadata_list = get_dblp_page_content(get_conf_url("sp", str(2023))[0], 5, "conf")
     # print(title_url_lst)

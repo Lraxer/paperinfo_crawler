@@ -17,7 +17,7 @@ logger.addHandler(handler)
 @retry_async
 async def get_abs_impl(url: str, driver: zd.Browser) -> str:
     css_selector = "div.abstract.author > div > div"
-    
+
     # 访问目标网页
     tab = await driver.get(url)
     await tab.wait(5)
@@ -29,7 +29,7 @@ async def get_abs_impl(url: str, driver: zd.Browser) -> str:
     return abstract
 
 
-async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str:
+async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str | None:
     if url == "":
         return None
 

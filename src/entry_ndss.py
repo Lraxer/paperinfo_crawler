@@ -13,7 +13,9 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_full_abstract(abs_session: requests.Session, url: str, req_itv: float) -> str:
+def get_full_abstract(
+    abs_session: requests.Session, url: str, req_itv: float
+) -> str | None:
     css_selector = "div.entry-content > div.paper-data > p:nth-child(2) > p"
 
     abstract = get_abstract_base(abs_session, url, req_itv, css_selector)

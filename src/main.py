@@ -430,7 +430,7 @@ if __name__ == "__main__":
         for vol in range(start_vol, end_vol + 1):
             saved_fn = "{}{}.bib".format(name, vol)
             collect_journal_metadata(
-                name, vol, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
+                name, str(vol), publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
             )
     else:
         # Conference
