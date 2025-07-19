@@ -47,6 +47,7 @@ cj_pub_dict = {
     "esorics": "springer",
     "dimva": "springer",
     "uss": "usenix",
+    "nsdi": "usenix",
     "ndss": "ndss",
     # journal
     "jsac": "ieee",
@@ -106,7 +107,7 @@ pub_cj_dict = {
         "asiaccs",
     },
     "springer": {"icics", "cybersec", "iccS", "esorics", "vldb", "dimva"},
-    "usenix": {"uss"},
+    "usenix": {"uss", "nsdi"},
     "ndss": {"ndss"},
     "elsevier": {"cn", "compsec", "istr", "iot"},
     "iospress": {"jcs"},
