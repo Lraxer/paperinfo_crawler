@@ -29,6 +29,7 @@ def get_abstract_base(
     res = make_request(abs_session, url, headers=req_headers)
     # 请求失败
     if res is None:
+        logger.warning("Request to {} failed.".format(url))
         return None
 
     if res.status_code != 200:

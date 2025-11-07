@@ -126,6 +126,7 @@ def get_paper_bibtex(
         sleep(req_itv)
         bibtex_res = make_request(bibtex_session, str(bibtex_url))
         if bibtex_res is None:
+            logger.error("Cannot obtain bibtex content: request failed")
             return None
 
         bibtex_soup = BeautifulSoup(bibtex_res.text, "html.parser")
@@ -166,10 +167,9 @@ def get_dblp_page_content(url: str, req_itv: float, type: str) -> list:
         )
     else:
         logger.error('Invalid type param. Should be "conf" or "journal"')
+        return []
 
     entry_metadata_list = list()
-
-    # progress_dblp = tqdm(total=len(paper_entry))
 
     bibtex_session = requests.Session()
     for entry in tqdm(paper_entries):
@@ -177,10 +177,7 @@ def get_dblp_page_content(url: str, req_itv: float, type: str) -> list:
         bibtex_str = get_paper_bibtex(bibtex_session, entry, req_itv)
         entry_metadata_list.append(title_url_list + [bibtex_str])
 
-        # progress_dblp.update(1)
-
     bibtex_session.close()
-    # progress_dblp.close()
 
     return entry_metadata_list
 
