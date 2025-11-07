@@ -18,7 +18,7 @@ def get_full_abstract(
 ) -> str | None:
     # 有两个一样的 `div.field...`，选取第二个标签，
     # 以及最后需要选取全部的p标签
-    css_selector = "div.content > div.field.field-name-field-paper-description.field-type-text-long.field-label-above:nth-child(2) > div.field-items > div.field-item.odd > p"
+    css_selector = "div.content > div.field.field-name-field-paper-description.field-type-text-long.field-label-above:nth-child(2) > div.field-items.field-items > div.field-item.odd > p"
 
     abstract = get_abstract_base(abs_session, url, req_itv, css_selector)
     return abstract
