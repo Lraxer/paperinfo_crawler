@@ -52,9 +52,7 @@ async def get_full_abstract(
     parsed_domain = urlparse(res.url).netloc
     if parsed_domain == "content.iospress.com":
         if res.status_code != 200:
-            logger.warning(
-                "Cannot access {} , status code: {}.".format(url, res.status_code)
-            )
+            logger.warning(f"Cannot access {url} , status code: {res.status_code}.")
             # print(res.text)
         else:
             abs_soup = BeautifulSoup(res.text, "html.parser")

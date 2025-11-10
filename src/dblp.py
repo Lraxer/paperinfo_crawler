@@ -34,33 +34,29 @@ def get_conf_url(name: str, year: str) -> tuple[str, str]:
     # isdigit() is still unsafe here as it does not equal to test whether string is an integer
     if name == "csfw" and year.isdigit() and int(year) >= 2023:
         # csfw 2023和后续的会议URL特殊：csfw/csf[year].html
-        conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name[:-1], year)
+        conf_url = f"{dblp_url}conf/{name}/{name[:-1]}{year}.html"
     elif name == "conext" and year.isdigit() and int(year) >= 2023:
         # conext 从2023之后，长文收录在期刊 The Proceedings of the ACM on Networking (PAMCNET) journal
-        conf_url = "{}journals/pacmnet/pacmnet{}.html".format(
-            dblp_url, int(year) - 2022
-        )
+        conf_url = f"{dblp_url}journals/pacmnet/pacmnet{int(year) - 2022}.html"
         entry_type_in_url = "journal"
     elif name == "kdd" and year == "2025":
         # kdd/kdd2025-1.html
-        conf_url = "{}conf/{}/{}{}-1.html".format(dblp_url, name, name, year)
+        conf_url = f"{dblp_url}conf/{name}/{name}{year}-1.html"
     elif name == "sigmod" and year.isdigit() and int(year) >= 2023:
-        conf_url = "{}journals/pacmmod/pacmmod{}.html".format(
-            dblp_url, int(year) - 2022
-        )
+        conf_url = f"{dblp_url}journals/pacmmod/pacmmod{int(year) - 2022}.html"
         entry_type_in_url = "journal"
     else:
-        conf_url = "{}conf/{}/{}{}.html".format(dblp_url, name, name, year)
+        conf_url = f"{dblp_url}conf/{name}/{name}{year}.html"
 
-    logger.debug("Request URL: {}".format(conf_url))
+    logger.debug(f"Request URL: {conf_url}")
 
     return conf_url, entry_type_in_url
 
 
 def get_journal_url(name: str, volume: str) -> str:
-    journal_url = "{}journals/{}/{}{}.html".format(dblp_url, name, name, volume)
+    journal_url = f"{dblp_url}journals/{name}/{name}{volume}.html"
 
-    logger.debug("Request URL: {}".format(journal_url))
+    logger.debug(f"Request URL: {journal_url}")
 
     return journal_url
 
@@ -91,9 +87,7 @@ def get_paper_title_and_url(entry: bs4.element.Tag) -> list:
         # doi.ieeecomputersociety.org 等URL无法访问，需要排除
         # e.g. "Space Odyssey: An Experimental Software Security Analysis of Satellites" in https://dblp.org/db/conf/sp/sp2023.html
         if "doi.ieeecomputersociety.org" in paper_url:
-            logger.warning(
-                "Unsupported URL {} of paper {}.".format(paper_url, paper_title)
-            )
+            logger.warning(f"Unsupported URL {paper_url} of paper {paper_title}.")
             paper_url = ""
 
     return [paper_title, paper_url]
@@ -154,7 +148,7 @@ def get_dblp_page_content(url: str, req_itv: float, type: str) -> list:
     """
     res = requests.get(url)
     if res.status_code != 200:
-        print("{} cannot be loaded. Make sure your input is valid.".format(url))
+        logger.error(f"{url} cannot be loaded. Make sure your input is valid.")
         return []
     soup = BeautifulSoup(res.text, "html.parser")
     if type == "conf":

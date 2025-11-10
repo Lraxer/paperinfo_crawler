@@ -25,9 +25,7 @@ def retry(func):
             except Exception as e:
                 if time < 3:
                     logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
-                            args[1], e.__class__.__name__, time + 1, retry_interval
-                        )
+                        f"Cannot access {args[1]} . Exception: {e.__class__.__name__} Retry {time + 1}/3 after {retry_interval} sec."
                     )
                     sleep(retry_interval)
         return None
@@ -55,11 +53,9 @@ def retry_async(func):
                     # ProtocolException seems to be a known issue, see
                     # https://github.com/stephanlensky/zendriver/issues/76
                     logger.warning(
-                        "Cannot access {} . Exception: {} Retry {}/3 after {} sec.".format(
-                            args[0], e.__class__.__name__, time + 1, retry_interval
-                        )
+                        f"Cannot access {args[0]} . Exception: {e.__class__.__name__} Retry {time + 1}/3 after {retry_interval} sec."
                     )
-                    # logger.warning("{}".format(repr(e)))
+                    # logger.warning(f"{repr(e)}")
                     sleep(retry_interval)
         return None
 

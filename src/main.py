@@ -50,19 +50,19 @@ def collect_conf_metadata(
 ) -> list:
     conf_url, entry_type_in_url = dblp.get_conf_url(name, year)
     if conf_url is None:
-        logger.error("Cannot get dblp URL for {}, {}".format(name, year))
+        logger.error(f"Cannot get dblp URL for {name}, {year}")
         return []
     entry_metadata_list = dblp.get_dblp_page_content(
         conf_url, dblp_req_itv, entry_type_in_url
     )
-    logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
+    logger.debug(f"Number of papers: {len(entry_metadata_list)}")
     if len(entry_metadata_list) <= 0:
-        logger.warning("No paper found in {}, {}".format(name, year))
+        logger.warning(f"No paper found in {name}, {year}")
         return []
 
     if save_pickle:
-        pkl_filename = "{}{}_dblp.pkl".format(name, year)
-        logger.debug("Save collected dblp data to {}.".format(pkl_filename))
+        pkl_filename = f"{name}{year}_dblp.pkl"
+        logger.debug(f"Save collected dblp data to {pkl_filename}.")
         with open(pkl_filename, "wb") as f:
             pickle.dump(entry_metadata_list, f)
 
@@ -91,14 +91,14 @@ def collect_journal_metadata(
     entry_metadata_list = dblp.get_dblp_page_content(
         dblp.get_journal_url(name, volume), dblp_req_itv, "journal"
     )
-    logger.debug("Number of papers: {}".format(len(entry_metadata_list)))
+    logger.debug(f"Number of papers: {len(entry_metadata_list)}")
     if len(entry_metadata_list) <= 0:
-        logger.warning("No paper found in {}, {}.".format(name, volume))
+        logger.warning(f"No paper found in {name}, {volume}.")
         return []
 
     if save_pickle:
-        pkl_filename = "{}{}_dblp.pkl".format(name, volume)
-        logger.debug("Save collected dblp data to {}.".format(pkl_filename))
+        pkl_filename = f"{name}{volume}_dblp.pkl"
+        logger.debug(f"Save collected dblp data to {pkl_filename}.")
         with open(pkl_filename, "wb") as f:
             pickle.dump(entry_metadata_list, f)
 
@@ -147,9 +147,7 @@ async def collect_abstract_impl(
         tmp_library = bibtexparser.parse_string(entry_metadata[2])
         if len(tmp_library.entries) != 1:
             logger.warning(
-                'Cannot parse bibtex string to entry of paper "{}", string is: {}.'.format(
-                    entry_metadata[0], repr(entry_metadata[2])
-                )
+                f'Cannot parse bibtex string to entry of paper "{entry_metadata[0]}", string is: {repr(entry_metadata[2])}.'
             )
             continue
 
@@ -157,9 +155,7 @@ async def collect_abstract_impl(
             abstract_field = bibtexparser.model.Field("abstract", repr(abstract)[1:-1])
             tmp_library.entries[0].set_field(abstract_field)
         else:
-            logger.warning(
-                'Cannot collect abstract of paper "{}".'.format(entry_metadata[0])
-            )
+            logger.warning(f'Cannot collect abstract of paper "{entry_metadata[0]}".')
         library.add(tmp_library.blocks)
 
     return library
@@ -174,7 +170,7 @@ async def collect_abstract(
 ):
     library = bibtexparser.Library()
 
-    logger.debug("Publisher: {}.".format(publisher))
+    logger.debug(f"Publisher: {publisher}.")
 
     if publisher == "ieee":
         browser_config = zd.Config(
@@ -241,7 +237,7 @@ async def collect_abstract(
             logger.error("Invalid publisher.")
             return
 
-    logger.debug("entries in bibtex db: {}.".format(len(library.entries)))
+    logger.debug(f"entries in bibtex db: {len(library.entries)}.")
     # 由于bibtexparser.write_file暂时无法指定编码，只能先写入字符串后手动保存到文件，
     # 参考 https://github.com/sciunto-org/python-bibtexparser/pull/405
     bib_str = bibtexparser.write_string(library)
@@ -346,9 +342,7 @@ if __name__ == "__main__":
         elif publisher != args.publisher:
             print("Input publisher cannot match.")
             selection = input(
-                'Use (1) pre-set publisher "{}" or (2) your input "{}"? Input 1 or 2.'.format(
-                    publisher, args.publisher
-                )
+                f'Use (1) pre-set publisher "{publisher}" or (2) your input "{args.publisher}"? Input 1 or 2.'
             )
             if selection == "1":
                 logger.debug("Use pre-set publisher.")
@@ -375,29 +369,20 @@ if __name__ == "__main__":
         volume: str = args.volume
 
         if args.save is None:
-            saved_fn = "{}{}.bib".format(name, volume)
+            saved_fn = f"{name}{volume}.bib"
         else:
             saved_fn = args.save
 
         logger.debug(
-            "\nname:{}\nvolume:{}\nneed_abs:{}\ndblp_req_itv:{}\nreq_itev:{}\npublisher:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
-                name,
-                volume,
-                need_abs,
-                dblp_req_itv,
-                req_itv,
-                publisher,
-                save_pkl,
-                from_pkl_fn,
-            )
+            f"\nname:{name}\nvolume:{volume}\nneed_abs:{need_abs}\ndblp_req_itv:{dblp_req_itv}\nreq_itev:{req_itv}\npublisher:{publisher}\nsave_pkl:{save_pkl}\nfrom_pkl_fn:{from_pkl_fn}\n"
         )
         # format: 19
         if volume.isdigit():
             if args.save is None:
-                saved_fn = "{}{}.bib".format(name, volume)
+                saved_fn = f"{name}{volume}.bib"
             else:
                 saved_fn = args.save
-            logger.debug("saved_fn:{}".format(saved_fn))
+            logger.debug(f"saved_fn: {saved_fn}")
             if from_pkl_fn is None:
                 collect_journal_metadata(
                     name, volume, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
@@ -428,7 +413,7 @@ if __name__ == "__main__":
             exit(1)
 
         for vol in range(start_vol, end_vol + 1):
-            saved_fn = "{}{}.bib".format(name, vol)
+            saved_fn = f"{name}{vol}.bib"
             collect_journal_metadata(
                 name, str(vol), publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
             )
@@ -437,22 +422,12 @@ if __name__ == "__main__":
         year = args.year
 
         if args.save is None:
-            saved_fn = "{}{}.bib".format(name, year)
+            saved_fn = f"{name}{year}.bib"
         else:
             saved_fn = args.save
 
         logger.debug(
-            "\nname:{}\nyear:{}\nneed_abs:{}\nsaved_fn:{}\ndblp_req_itv:{}\nreq_itev:{}\npublisher:{}\nsave_pkl:{}\nfrom_pkl_fn:{}\n".format(
-                name,
-                year,
-                need_abs,
-                saved_fn,
-                dblp_req_itv,
-                req_itv,
-                publisher,
-                save_pkl,
-                from_pkl_fn,
-            )
+            f"\nname:{name}\nyear:{year}\nneed_abs:{need_abs}\nsaved_fn:{saved_fn}\ndblp_req_itv:{dblp_req_itv}\nreq_itev:{req_itv}\npublisher:{publisher}\nsave_pkl:{save_pkl}\nfrom_pkl_fn:{from_pkl_fn}\n"
         )
         if from_pkl_fn is None:
             collect_conf_metadata(

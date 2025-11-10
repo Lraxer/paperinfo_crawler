@@ -29,13 +29,11 @@ def get_abstract_base(
     res = make_request(abs_session, url, headers=req_headers)
     # 请求失败
     if res is None:
-        logger.warning("Request to {} failed.".format(url))
+        logger.warning(f"Request to {url} failed.")
         return None
 
     if res.status_code != 200:
-        logger.warning(
-            "Cannot access {} , status code: {}.".format(url, res.status_code)
-        )
+        logger.warning(f"Cannot access {url} , status code: {res.status_code}.")
     else:
         abs_soup = BeautifulSoup(res.text, "html.parser")
         abs_tags = abs_soup.select(css_selector)
