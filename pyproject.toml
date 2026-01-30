@@ -1,0 +1,13 @@
+[project]
+name = "paperinfo-crawler"
+version = "0.1.0"
+description = "A simple crawler to collect paper information from dblp and publisher websites."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "bibtexparser==2.0.0b9",
+    "requests>=2.32.5",
+    "tqdm>=4.67.1",
+    "zendriver>=0.15.2",
+]

@@ -4,7 +4,7 @@ from time import sleep
 
 import zendriver as zd
 
-from request_wrap import retry_async
+from src.request_wrap import retry_async
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

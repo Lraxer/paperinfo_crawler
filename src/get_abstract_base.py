@@ -4,8 +4,8 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-from request_wrap import make_request
-from settings import req_headers
+from src.request_wrap import make_request
+from src.settings import req_headers
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

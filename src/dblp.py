@@ -6,8 +6,8 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from request_wrap import make_request
-from settings import dblp_url
+from src.request_wrap import make_request
+from src.settings import dblp_url
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

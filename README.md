@@ -10,9 +10,7 @@
 
 ## 安装
 
-Python 版本要求：3.10 及以上。
-
-### 变量设置
+### 代码设置
 
 1. 安装 Goole Chrome 浏览器，记录 Chrome 可执行文件的路径，例如，Windows 系统下一般是 `C:/Program Files/Google/Chrome/Application/chrome.exe`。
 2. 在 `settings.py` 中修改 `chrome_path`，填写 `chrome.exe` 可执行文件的路径。
@@ -21,14 +19,26 @@ Python 版本要求：3.10 及以上。
 
 ### 设置 Python 虚拟环境与安装依赖
 
-你可以使用 `venv` 或者 `uv` 等工具创建虚拟环境。
+#### 使用 uv
+
+根据官方文档 [安装uv](https://docs.astral.sh/uv/)。
+
+同步依赖
+
+```bash
+uv sync --locked
+```
+
+#### 手动创建虚拟环境
+
+也可以使用 `venv` 等工具手动创建虚拟环境。
 
 ```powershell
 # For Windows
 cd paperinfo_crawler
 python -m venv ./venv
 .\venv\Scripts\activate
-pip install -r requirements-no-version.txt
+pip install -r requirements.txt
 ```
 
 ```bash
@@ -36,7 +46,7 @@ pip install -r requirements-no-version.txt
 cd paperinfo_crawler
 python -m venv ./venv
 source ./venv/bin/activate
-pip install -r requirements-no-version.txt
+pip install -r requirements.txt
 ```
 
 ## 运行
@@ -46,29 +56,26 @@ pip install -r requirements-no-version.txt
 1. 从 [dblp](https://dblp.uni-trier.de/) 获取给定会议和年份的论文列表，或给定期刊和卷号的论文列表，得到 bibtex 格式的引用，并获取论文的 `doi.org/xxxx` 格式的 URL 链接。
 2. 访问每一篇论文的链接，该链接会自动重定向到出版社的页面。脚本尝试从页面中获取摘要，合并到 bibtex 引用中，生成 `.bib` 文件。
 
+以下是使用 `uv` 的运行示例。如果你使用自己创建的虚拟环境，将 `uv run` 替换为 `python` 即可。
+
 ```powershell
-cd src
-python ./main.py --help
+uv run ./main.py --help
 
 # e.g.
 # 会议
-python ./main.py -n raid -y 2022 -e -d 5 -t 8
+uv run ./main.py -n raid -y 2022 -e -d 5 -t 8
 # dblp 上，部分会议一年分为多个part
 # 通过 -f 参数，读取pickle文件中保存的dblp论文列表，以获取摘要
 # 如果要爬取的会议/期刊不在已验证的支持范围内，用 -p 手动指定出版社
-python .\main.py -n iccS -y 2022-2 -p springer -f ./iccS2022-2_dblp.pkl -t 6
+uv run ./main.py -n iccS -y 2022-2 -p springer -f ./iccS2022-2_dblp.pkl -t 6
 
 # 期刊
-python ./main.py -n tifs -u 16 -e -d 5 -t 8
+uv run ./main.py -n tifs -u 16 -e -d 5 -t 8
 # 可以批量下载多个卷
-python ./main.py -n tifs -u 16-18 -e -d 5 -t 8
+uv run ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 ```
 
-## 测试环境
-
-由于设备有限，当前只在 Windows 11 系统下，Python 3.11.9 环境下运行过脚本。该脚本理论上不受系统限制。
-
-**爬取的速度，即 `-d` 和 `-t` 参数不应太小，以免被封禁。**
+**注意爬取的速度不要太快，即 `-d` 和 `-t` 不应设置太小，以免被封禁。**
 
 ## 已知问题
 

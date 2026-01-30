@@ -3,7 +3,7 @@ from time import sleep
 
 import requests
 
-from settings import retry_interval
+from src.settings import retry_interval
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

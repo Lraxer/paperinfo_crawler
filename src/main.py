@@ -2,22 +2,25 @@ import argparse
 import asyncio
 import logging
 import pickle
+from dataclasses import dataclass
 
 import bibtexparser
+import bibtexparser.entrypoint
+import bibtexparser.library
 import bibtexparser.model
 import requests
 import zendriver as zd
 from tqdm import tqdm
 
-import dblp
-import entry_acm
-import entry_elsevier
-import entry_ieee
-import entry_iospress
-import entry_ndss
-import entry_springer
-import entry_usenix
-from settings import chrome_path, cj_pub_dict, cookie_path
+import src.dblp as dblp
+import src.entry_acm as entry_acm
+import src.entry_ieee as entry_ieee
+import src.entry_iospress as entry_iospress
+import src.entry_elsevier as entry_elsevier
+import src.entry_ndss as entry_ndss
+import src.entry_springer as entry_springer
+import src.entry_usenix as entry_usenix
+from src.settings import chrome_path, cj_pub_dict, cookie_path
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -39,77 +42,89 @@ publisher_module_dict = {
 }
 
 
-def collect_conf_metadata(
-    name: str,
-    year: str,
-    publisher: str,
-    need_abstract: bool,
-    export_bib_path: str,
-    dblp_req_itv: float,
-    save_pickle: bool,
-) -> list:
-    conf_url, entry_type_in_url = dblp.get_conf_url(name, year)
+@dataclass
+class JournalObj:
+    name: str
+    volume: str
+    publisher: str
+    need_abs: bool
+    save_pkl: bool
+    bib_fn: str
+    from_pkl: str | None
+    dblp_req_interval: float
+    req_interval: float
+
+
+@dataclass
+class ConferenceObj:
+    name: str
+    year: str
+    publisher: str
+    need_abs: bool
+    save_pkl: bool
+    bib_fn: str
+    from_pkl: str | None
+    dblp_req_interval: float
+    req_interval: float
+
+
+def collect_conf_metadata(*, entry: ConferenceObj):
+    conf_url, entry_type_in_url = dblp.get_conf_url(entry.name, entry.year)
     if conf_url is None:
-        logger.error(f"Cannot get dblp URL for {name}, {year}")
+        logger.error(f"Cannot get dblp URL for {entry.name}, {entry.year}")
         return []
     entry_metadata_list = dblp.get_dblp_page_content(
-        conf_url, dblp_req_itv, entry_type_in_url
+        conf_url, entry.dblp_req_interval, entry_type_in_url
     )
     logger.debug(f"Number of papers: {len(entry_metadata_list)}")
     if len(entry_metadata_list) <= 0:
-        logger.warning(f"No paper found in {name}, {year}")
+        logger.warning(f"No paper found in {entry.name}, {entry.year}")
         return []
 
-    if save_pickle:
-        pkl_filename = f"{name}{year}_dblp.pkl"
+    if entry.save_pkl:
+        pkl_filename = f"{entry.name}{entry.year}_dblp.pkl"
         logger.debug(f"Save collected dblp data to {pkl_filename}.")
         with open(pkl_filename, "wb") as f:
             pickle.dump(entry_metadata_list, f)
 
-    if need_abstract:
+    if entry.need_abs:
         asyncio.run(
             collect_abstract(
-                name,
+                entry.name,
                 entry_metadata_list,
-                export_bib_path,
-                publisher,
-                dblp_req_itv,
+                entry.bib_fn,
+                entry.publisher,
+                entry.req_interval,
             )
         )
     return entry_metadata_list
 
 
-def collect_journal_metadata(
-    name: str,
-    volume: str,
-    publisher: str,
-    need_abstract: bool,
-    export_bib_path: str,
-    dblp_req_itv: float,
-    save_pickle: bool,
-) -> list:
+def collect_journal_metadata(*, entry: JournalObj) -> list:
     entry_metadata_list = dblp.get_dblp_page_content(
-        dblp.get_journal_url(name, volume), dblp_req_itv, "journal"
+        dblp.get_journal_url(entry.name, entry.volume),
+        entry.dblp_req_interval,
+        "journal",
     )
     logger.debug(f"Number of papers: {len(entry_metadata_list)}")
     if len(entry_metadata_list) <= 0:
-        logger.warning(f"No paper found in {name}, {volume}.")
+        logger.warning(f"No paper found in {entry.name}, {entry.volume}.")
         return []
 
-    if save_pickle:
-        pkl_filename = f"{name}{volume}_dblp.pkl"
+    if entry.save_pkl:
+        pkl_filename = f"{entry.name}{entry.volume}_dblp.pkl"
         logger.debug(f"Save collected dblp data to {pkl_filename}.")
         with open(pkl_filename, "wb") as f:
             pickle.dump(entry_metadata_list, f)
 
-    if need_abstract:
+    if entry.need_abs:
         asyncio.run(
             collect_abstract(
-                name,
+                entry.name,
                 entry_metadata_list,
-                export_bib_path,
-                publisher,
-                req_itv,
+                entry.bib_fn,
+                entry.publisher,
+                entry.req_interval,
             )
         )
 
@@ -118,7 +133,7 @@ def collect_journal_metadata(
 
 async def collect_abstract_impl(
     entry_func,
-    library: bibtexparser.Library,
+    library: bibtexparser.library.Library,
     entry_metadata_list: list,
     need_webdriver: bool,
     req_itv: float = 10,
@@ -144,7 +159,7 @@ async def collect_abstract_impl(
             )
             abs_session.close()
         # if parse failed, the number of entries in library is 0, print warning and process the next paper.
-        tmp_library = bibtexparser.parse_string(entry_metadata[2])
+        tmp_library = bibtexparser.entrypoint.parse_string(entry_metadata[2])
         if len(tmp_library.entries) != 1:
             logger.warning(
                 f'Cannot parse bibtex string to entry of paper "{entry_metadata[0]}", string is: {repr(entry_metadata[2])}.'
@@ -168,106 +183,103 @@ async def collect_abstract(
     publisher: str,
     req_itv: float = 10,
 ):
-    library = bibtexparser.Library()
+    library = bibtexparser.library.Library()
 
     logger.debug(f"Publisher: {publisher}.")
 
-    if publisher == "ieee":
-        browser_config = zd.Config(
-            headless=True,
-            user_data_dir=cookie_path,
-            browser_executable_path=chrome_path,
-        )
-        browser = await zd.start(config=browser_config)
-        library = await collect_abstract_impl(
-            entry_ieee,
-            library,
-            entry_metadata_list,
-            need_webdriver=True,
-            req_itv=req_itv,
-            driver=browser,
-        )
-        await browser.stop()
-    elif publisher == "elsevier" or publisher == "iospress" or publisher == "acm":
-        browser_config = zd.Config(
-            headless=False,
-            user_data_dir=cookie_path,
-            browser_executable_path=chrome_path,
-        )
-        browser = await zd.start(config=browser_config)
-        if publisher == "elsevier":
+    match publisher:
+        case "ieee":
+            browser_config = zd.Config(
+                headless=True,
+                user_data_dir=cookie_path,
+                browser_executable_path=chrome_path,
+            )
+            browser = await zd.start(config=browser_config)
             library = await collect_abstract_impl(
-                entry_elsevier,
+                entry_ieee,
                 library,
                 entry_metadata_list,
                 need_webdriver=True,
                 req_itv=req_itv,
                 driver=browser,
             )
-        elif publisher == "iospress":
-            library = await collect_abstract_impl(
-                entry_iospress,
-                library,
-                entry_metadata_list,
-                need_webdriver=True,
-                req_itv=req_itv,
-                driver=browser,
+            await browser.stop()
+        case "elsevier" | "iospress" | "acm":
+            browser_config = zd.Config(
+                headless=False,
+                user_data_dir=cookie_path,
+                browser_executable_path=chrome_path,
             )
-        elif publisher == "acm":
-            library = await collect_abstract_impl(
-                entry_acm,
-                library,
-                entry_metadata_list,
-                need_webdriver=True,
-                req_itv=req_itv,
-                driver=browser,
-            )
-        await browser.stop()
-    else:
-        selected_module = publisher_module_dict.get(publisher)
-        if selected_module is not None:
-            library = await collect_abstract_impl(
-                selected_module,
-                library,
-                entry_metadata_list,
-                need_webdriver=False,
-                req_itv=req_itv,
-            )
-        else:
-            logger.error("Invalid publisher.")
-            return
+            browser = await zd.start(config=browser_config)
+            if publisher == "elsevier":
+                library = await collect_abstract_impl(
+                    entry_elsevier,
+                    library,
+                    entry_metadata_list,
+                    need_webdriver=True,
+                    req_itv=req_itv,
+                    driver=browser,
+                )
+            elif publisher == "iospress":
+                library = await collect_abstract_impl(
+                    entry_iospress,
+                    library,
+                    entry_metadata_list,
+                    need_webdriver=True,
+                    req_itv=req_itv,
+                    driver=browser,
+                )
+            elif publisher == "acm":
+                library = await collect_abstract_impl(
+                    entry_acm,
+                    library,
+                    entry_metadata_list,
+                    need_webdriver=True,
+                    req_itv=req_itv,
+                    driver=browser,
+                )
+            await browser.stop()
+        case _:
+            selected_module = publisher_module_dict.get(publisher)
+            if selected_module is not None:
+                library = await collect_abstract_impl(
+                    selected_module,
+                    library,
+                    entry_metadata_list,
+                    need_webdriver=False,
+                    req_itv=req_itv,
+                )
+            else:
+                logger.error("Invalid publisher.")
+                return
 
     logger.debug(f"entries in bibtex db: {len(library.entries)}.")
     # 由于bibtexparser.write_file暂时无法指定编码，只能先写入字符串后手动保存到文件，
     # 参考 https://github.com/sciunto-org/python-bibtexparser/pull/405
-    bib_str = bibtexparser.write_string(library)
+    bib_str = bibtexparser.entrypoint.write_string(library)
     with open(export_bib_path, "w", encoding="utf-8") as f:
         f.write(bib_str)
 
 
-def collect_abstract_from_dblp_pkl(
-    pkl_filename: str,
-    name: str,
-    publisher: str,
-    export_bib_path: str,
-    req_itv: float,
-):
-    with open(pkl_filename, "rb") as f:
+def collect_abstract_from_dblp_pkl(*, entry: JournalObj | ConferenceObj):
+    if entry.from_pkl is None:
+        logger.error("from_pkl is None.")
+        return
+
+    with open(entry.from_pkl, "rb") as f:
         entry_metadata_list = pickle.load(f)
     asyncio.run(
         collect_abstract(
-            name,
+            entry.name,
             entry_metadata_list,
-            export_bib_path,
-            publisher,
-            req_itv,
+            entry.bib_fn,
+            entry.publisher,
+            entry.req_interval,
         )
     )
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Collect paper metadata.")
-
+def parse_args(parser: argparse.ArgumentParser, argv: list[str] | None):
     parser.add_argument("--name", "-n", type=str, required=True, help="会议/期刊标识")
 
     # conference or journal
@@ -323,118 +335,203 @@ if __name__ == "__main__":
         help="bibtex文件的保存位置，默认是[name][year].bib, 对于期刊，该选项只支持volume为数字的输入（e.g. -u 72），不支持多卷的输入（e.g. -u 72-79）",
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    name = args.name
+    return args
 
-    save_pkl = args.save_pkl
-    need_abs = not args.no_abs
-    from_pkl_fn = args.from_pkl
 
-    publisher = cj_pub_dict.get(args.name)
-    if args.publisher is not None:
-        if publisher is None:
-            if from_pkl_fn is not None:
-                print(
+def validate_publisher(publisher: str | None, name: str, from_pkl: str | None) -> str:
+    tested_publisher = cj_pub_dict.get(name)
+    if publisher is not None:
+        if tested_publisher is None:
+            if from_pkl is not None:
+                logger.warning(
                     "This conference/journal has not been tested yet. Setting --save-pkl is recommended."
                 )
-            publisher = args.publisher
-        elif publisher != args.publisher:
-            print("Input publisher cannot match.")
+        elif tested_publisher != publisher:
+            logger.warning("Input publisher cannot match.")
             selection = input(
-                f'Use (1) pre-set publisher "{publisher}" or (2) your input "{args.publisher}"? Input 1 or 2.'
+                f'Use (1) pre-set publisher "{tested_publisher}" or (2) your input "{publisher}"? Input 1 or 2.'
             )
-            if selection == "1":
-                logger.debug("Use pre-set publisher.")
-            else:
-                logger.debug("Use user input.")
-                publisher = args.publisher
+            match selection:
+                case "1":
+                    logger.debug("Use pre-set publisher.")
+                    publisher = tested_publisher
+                case "2":
+                    logger.debug("Use user input.")
+                case _:
+                    logger.error("Invalid input.")
+                    exit(1)
     else:
-        if publisher is None:
-            print(
+        if tested_publisher is None:
+            logger.error(
                 "Cannot find this conference/journal. Please specify publisher by -p or --publisher."
             )
             exit(1)
+        publisher = tested_publisher
 
-    if need_abs is False and from_pkl_fn is not None:
-        print("--no-abs cannot be set together with --from-pkl (-f).")
-        exit(1)
+    return publisher
 
-    dblp_req_itv = args.dblp_interval
-    # 收集摘要的发送请求时间间隔
-    req_itv = args.interval
 
-    if args.year is None:
-        # Journal
-        volume: str = args.volume
-
-        if args.save is None:
+def crawl_journal(
+    *,
+    name: str,
+    volume: str,
+    publisher: str,
+    need_abs: bool,
+    save_pkl: bool,
+    bib_fn: str | None,
+    from_pkl: str | None,
+    dblp_req_itv: float,
+    req_itv: float,
+):
+    # format: 19
+    if volume.isdigit():
+        if bib_fn is None:
             saved_fn = f"{name}{volume}.bib"
         else:
-            saved_fn = args.save
-
-        logger.debug(
-            f"\nname:{name}\nvolume:{volume}\nneed_abs:{need_abs}\ndblp_req_itv:{dblp_req_itv}\nreq_itev:{req_itv}\npublisher:{publisher}\nsave_pkl:{save_pkl}\nfrom_pkl_fn:{from_pkl_fn}\n"
+            saved_fn = bib_fn
+        journal_entry = JournalObj(
+            name=name,
+            volume=volume,
+            publisher=publisher,
+            need_abs=need_abs,
+            save_pkl=save_pkl,
+            bib_fn=saved_fn,
+            from_pkl=from_pkl,
+            dblp_req_interval=dblp_req_itv,
+            req_interval=req_itv,
         )
-        # format: 19
-        if volume.isdigit():
-            if args.save is None:
-                saved_fn = f"{name}{volume}.bib"
-            else:
-                saved_fn = args.save
-            logger.debug(f"saved_fn: {saved_fn}")
-            if from_pkl_fn is None:
-                collect_journal_metadata(
-                    name, volume, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
-                )
-                exit(0)
-            else:
-                collect_abstract_from_dblp_pkl(
-                    from_pkl_fn, name, publisher, saved_fn, req_itv
-                )
-                exit(0)
+        logger.debug(f"journal_entry: {journal_entry}")
+        if journal_entry.from_pkl is None:
+            collect_journal_metadata(entry=journal_entry)
+            exit(0)
+        else:
+            collect_abstract_from_dblp_pkl(entry=journal_entry)
+            exit(0)
 
-        # format: 19-29
-        vol_list = volume.split("-")
-        if len(vol_list) != 2:
-            logger.error("Invalid volume input.")
-            exit(1)
-        start_vol = int(vol_list[0])
-        end_vol = int(vol_list[1])
+    # format: 19-29
+    vol_list = volume.split("-")
+    if len(vol_list) != 2:
+        logger.error("Invalid volume input.")
+        exit(1)
+    start_vol = int(vol_list[0])
+    end_vol = int(vol_list[1])
 
-        if end_vol <= start_vol:
-            logger.error("Invalid volume input.")
-            exit(1)
+    if end_vol <= start_vol:
+        logger.error("Invalid volume input.")
+        exit(1)
 
-        if from_pkl_fn is not None:
-            logger.error(
-                '--from-pkl (-f) is not compatible with "72-79" format of volume parameter.'
-            )
-            exit(1)
+    if from_pkl is not None:
+        logger.error(
+            '--from-pkl (-f) is not compatible with "72-79" format of volume parameter.'
+        )
+        exit(1)
 
-        for vol in range(start_vol, end_vol + 1):
-            saved_fn = f"{name}{vol}.bib"
-            collect_journal_metadata(
-                name, str(vol), publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
-            )
+    journal_entry = JournalObj(
+        name=name,
+        volume=vol_list[0],
+        publisher=publisher,
+        need_abs=need_abs,
+        save_pkl=save_pkl,
+        bib_fn=f"{name}{start_vol}.bib",
+        from_pkl=from_pkl,
+        dblp_req_interval=dblp_req_itv,
+        req_interval=req_itv,
+    )
+
+    for vol in range(start_vol, end_vol + 1):
+        saved_fn = f"{name}{vol}.bib"
+        journal_entry.volume = str(vol)
+        journal_entry.bib_fn = saved_fn
+        collect_journal_metadata(entry=journal_entry)
+
+
+def crawl_conference(
+    *,
+    name: str,
+    year: str,
+    publisher: str,
+    need_abs: bool,
+    save_pkl: bool,
+    bib_fn: str | None,
+    from_pkl: str | None,
+    dblp_req_itv: float,
+    req_itv: float,
+):
+    # Conference
+    if bib_fn is None:
+        saved_fn = f"{name}{year}.bib"
     else:
-        # Conference
-        year = args.year
+        saved_fn: str = bib_fn
 
-        if args.save is None:
-            saved_fn = f"{name}{year}.bib"
-        else:
-            saved_fn = args.save
-
-        logger.debug(
-            f"\nname:{name}\nyear:{year}\nneed_abs:{need_abs}\nsaved_fn:{saved_fn}\ndblp_req_itv:{dblp_req_itv}\nreq_itev:{req_itv}\npublisher:{publisher}\nsave_pkl:{save_pkl}\nfrom_pkl_fn:{from_pkl_fn}\n"
+    conference_entry = ConferenceObj(
+        name=name,
+        year=year,
+        publisher=publisher,
+        need_abs=need_abs,
+        save_pkl=save_pkl,
+        bib_fn=saved_fn,
+        from_pkl=from_pkl,
+        dblp_req_interval=dblp_req_itv,
+        req_interval=req_itv,
+    )
+    logger.debug(f"conference_entry: {conference_entry}")
+    if from_pkl is None:
+        collect_conf_metadata(
+            # name, year, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
+            entry=conference_entry
         )
-        if from_pkl_fn is None:
-            collect_conf_metadata(
-                name, year, publisher, need_abs, saved_fn, dblp_req_itv, save_pkl
-            )
-        else:
-            logger.debug("Collect abstract from dblp pickle file.")
-            collect_abstract_from_dblp_pkl(
-                from_pkl_fn, name, publisher, saved_fn, req_itv
-            )
+    else:
+        logger.debug("Collect abstract from dblp pickle file.")
+        collect_abstract_from_dblp_pkl(entry=conference_entry)
+
+
+def main(argv: list[str] | None):
+    parser = argparse.ArgumentParser(description="Collect paper metadata.")
+
+    args = parse_args(parser, argv)
+
+    name: str = args.name
+
+    save_pkl: bool = args.save_pkl
+    need_abs: bool = not args.no_abs
+    from_pkl: str | None = args.from_pkl
+    year: str | None = args.year  # only set for conference
+
+    dblp_req_itv: float = args.dblp_interval
+    # 收集摘要的发送请求时间间隔
+    req_itv: float = args.interval
+
+    publisher = validate_publisher(args.publisher, name, from_pkl)
+
+    if need_abs is False and from_pkl is not None:
+        logger.error("--no-abs cannot be set together with --from-pkl (-f).")
+        exit(1)
+
+    if year is None:
+        # Journal
+        volume: str = args.volume
+        crawl_journal(
+            name=name,
+            volume=volume,
+            publisher=publisher,
+            need_abs=need_abs,
+            save_pkl=save_pkl,
+            bib_fn=args.save,
+            from_pkl=from_pkl,
+            dblp_req_itv=dblp_req_itv,
+            req_itv=req_itv,
+        )
+    else:
+        crawl_conference(
+            name=name,
+            year=year,
+            publisher=publisher,
+            need_abs=need_abs,
+            save_pkl=save_pkl,
+            bib_fn=args.save,
+            from_pkl=from_pkl,
+            dblp_req_itv=dblp_req_itv,
+            req_itv=req_itv,
+        )

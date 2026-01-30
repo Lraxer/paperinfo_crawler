@@ -6,8 +6,8 @@ import requests
 import zendriver as zd
 from bs4 import BeautifulSoup
 
-from request_wrap import make_request, retry_async
-from settings import req_headers
+from src.request_wrap import make_request, retry_async
+from src.settings import req_headers
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
