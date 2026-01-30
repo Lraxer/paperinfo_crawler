@@ -254,11 +254,7 @@ async def collect_abstract(
                 return
 
     logger.debug(f"entries in bibtex db: {len(library.entries)}.")
-    # 由于bibtexparser.write_file暂时无法指定编码，只能先写入字符串后手动保存到文件，
-    # 参考 https://github.com/sciunto-org/python-bibtexparser/pull/405
-    bib_str = bibtexparser.entrypoint.write_string(library)
-    with open(export_bib_path, "w", encoding="utf-8") as f:
-        f.write(bib_str)
+    bibtexparser.entrypoint.write_file(export_bib_path, library, encoding="utf-8")
 
 
 def collect_abstract_from_dblp_pkl(*, entry: JournalObj | ConferenceObj):
