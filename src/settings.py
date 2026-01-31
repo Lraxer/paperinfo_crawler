@@ -1,5 +1,5 @@
 # chrome path
-chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+chrome_path = "D:/pycode/Chrome-bin/chrome.exe"
 
 # Interval in seconds to wait for retrying after a failed request
 retry_interval = 15
@@ -10,7 +10,7 @@ dblp_url = "https://dblp.uni-trier.de/db/"
 
 # header for requests
 req_headers = {
-    "User-Agent": r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "User-Agent": r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
     "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
     "Sec-Fetch-Dest": "document",
