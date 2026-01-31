@@ -12,7 +12,7 @@
 
 ### 代码设置
 
-1. 安装 Goole Chrome 浏览器，记录 Chrome 可执行文件的路径，例如，Windows 系统下一般是 `C:/Program Files/Google/Chrome/Application/chrome.exe`。
+1. 安装 Goole Chrome 浏览器（或者 Chromium），记录 Chrome 可执行文件的路径，例如，Windows 系统下一般是 `C:/Program Files/Google/Chrome/Application/chrome.exe`。
 2. 在 `settings.py` 中修改 `chrome_path`，填写 `chrome.exe` 可执行文件的路径。
 3. 在 `settings.py` 中修改 `cookie_path`，创建一个目录用于保存 cookie，并填写该目录的路径。
 4. （可选）修改 `req_headers`，这个字典用于 requests 库发送请求时设置请求头。
