@@ -17,20 +17,19 @@ logger.addHandler(handler)
 
 @retry_async
 async def get_abs_impl(url: str, driver: zd.Browser) -> str:
-    css_selector = (
+    basic_css_selector = (
         r"div.core-container > section[id='abstract'] > div[role='paragraph']"
     )
-    oa_css_selector = (
-        r"div.core-container > section[id='summary-abstract'] > div[role='paragraph']"
-    )
+    oa_css_selector = r"div.core-container > section[id='core-tabbed-abstracts'] > section[id='abstract'] > div[role='paragraph']"
     # 访问目标网页
     tab = await driver.get(url)
     await tab.wait(5)
     try:
+        css_selector = oa_css_selector
         await tab.wait_for(selector=css_selector, timeout=5)
     except asyncio.TimeoutError:
         # some papers use a different abstract css selector
-        css_selector = oa_css_selector
+        css_selector = basic_css_selector
         await tab.wait_for(selector=css_selector, timeout=5)
     await tab.get_content()
 
