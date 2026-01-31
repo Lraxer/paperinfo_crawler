@@ -6,12 +6,6 @@ import zendriver as zd
 from src.request_wrap import retry_async
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 @retry_async
@@ -61,6 +55,12 @@ async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str
 
 
 # if __name__ == "__main__":
+#     logger.setLevel(logging.DEBUG)
+#     handler = logging.StreamHandler()
+#     handler.setLevel(logging.DEBUG)
+#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
 #     import asyncio
 #     from settings import cookie_path, chrome_path
 #     asyncio.run(main())

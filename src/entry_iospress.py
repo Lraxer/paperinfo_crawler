@@ -10,12 +10,6 @@ from src.request_wrap import make_request, retry_async
 from src.settings import req_headers
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 @retry_async
@@ -73,27 +67,31 @@ async def get_full_abstract(
     return str(abstract) if abstract is not None else None
 
 
-async def main():
-    config = zd.Config(
-        headless=False,
-        user_data_dir=cookie_path,
-        browser_executable_path=chrome_path,
-    )
+# async def main():
+#     config = zd.Config(
+#         headless=False,
+#         user_data_dir=cookie_path,
+#         browser_executable_path=chrome_path,
+#     )
 
-    browser = await zd.start(config=config)
+#     browser = await zd.start(config=config)
 
-    with requests.Session() as s:
-        abstract = await get_full_abstract(
-            s, "https://journals.sagepub.com/doi/10.3233/JCS-220031", 0, browser
-        )
+#     with requests.Session() as s:
+#         abstract = await get_full_abstract(
+#             s, "https://journals.sagepub.com/doi/10.3233/JCS-220031", 0, browser
+#         )
 
-    await browser.stop()
-    print(abstract)
+#     await browser.stop()
+#     print(abstract)
 
 
-if __name__ == "__main__":
-    import asyncio
-
-    from settings import chrome_path, cookie_path
-
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     logger.setLevel(logging.DEBUG)
+#     handler = logging.StreamHandler()
+#     handler.setLevel(logging.DEBUG)
+#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+#     import asyncio
+#     from settings import chrome_path, cookie_path
+#     asyncio.run(main())

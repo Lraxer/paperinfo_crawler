@@ -10,25 +10,53 @@ import bibtexparser.library
 import bibtexparser.model
 import requests
 import zendriver as zd
-from tqdm import tqdm
+from rich.logging import RichHandler
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           TaskProgressColumn, TextColumn, TimeElapsedColumn,
+                           TimeRemainingColumn)
 
 import src.dblp as dblp
 import src.entry_acm as entry_acm
+import src.entry_elsevier as entry_elsevier
 import src.entry_ieee as entry_ieee
 import src.entry_iospress as entry_iospress
-import src.entry_elsevier as entry_elsevier
 import src.entry_ndss as entry_ndss
 import src.entry_springer as entry_springer
 import src.entry_usenix as entry_usenix
 from src.settings import chrome_path, cj_pub_dict, cookie_path
 
+
+def setup_logging():
+    # set root logger
+    root = logging.getLogger()
+    # 屏蔽所有第三方库的 DEBUG 日志
+    root.setLevel(logging.WARNING)
+    root.handlers.clear()  # 防止重复输出
+
+    handler = RichHandler(
+        rich_tracebacks=True,
+        markup=True,
+        show_time=True,
+        show_level=True,
+        show_path=False,
+    )
+    handler.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
+
+    # 显式开启本项目代码的 DEBUG 日志
+    logging.getLogger("src").setLevel(logging.DEBUG)
+    logging.getLogger("__main__").setLevel(logging.DEBUG)
+    # 屏蔽 zendriver 的低级别日志
+    # logging.getLogger("zendriver").setLevel(logging.WARNING)
+
+
+setup_logging()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 publisher_module_dict = {
@@ -139,7 +167,21 @@ async def collect_abstract_impl(
     req_itv: float = 10,
     driver=None,
 ):
-    for entry_metadata in tqdm(entry_metadata_list):
+    progress = Progress(
+        TextColumn("{task.description}"),
+        TaskProgressColumn(),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeElapsedColumn(),
+        TimeRemainingColumn(compact=True),
+        TextColumn("{task.fields[avg_sec_per_it]:>6.2f} s/it"),
+    )
+    progress.start()
+    task_id = progress.add_task(
+        "Collecting Abstracts", total=len(entry_metadata_list), avg_sec_per_it=0
+    )
+
+    for entry_metadata in entry_metadata_list:
         if need_webdriver:
             if entry_func == entry_iospress:
                 # special case for iospress
@@ -173,6 +215,16 @@ async def collect_abstract_impl(
             logger.warning(f'Cannot collect abstract of paper "{entry_metadata[0]}".')
         library.add(tmp_library.blocks)
 
+        # set speed display
+        task_fields = progress.tasks[task_id]
+        avg_speed = (
+            task_fields.elapsed / (task_fields.completed + 1)
+            if task_fields.elapsed
+            else 0
+        )
+        progress.update(task_id, advance=1, avg_sec_per_it=avg_speed)
+
+    progress.stop()
     return library
 
 

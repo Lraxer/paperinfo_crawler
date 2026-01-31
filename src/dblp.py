@@ -4,18 +4,14 @@ from time import sleep
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           TaskProgressColumn, TextColumn, TimeElapsedColumn,
+                           TimeRemainingColumn)
 
 from src.request_wrap import make_request
 from src.settings import dblp_url
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 def get_conf_url(name: str, year: str) -> tuple[str, str]:
@@ -166,16 +162,47 @@ def get_dblp_page_content(url: str, req_itv: float, type: str) -> list:
     entry_metadata_list = list()
 
     bibtex_session = requests.Session()
-    for entry in tqdm(paper_entries):
+
+    progress = Progress(
+        TextColumn("{task.description}"),
+        TaskProgressColumn(),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeElapsedColumn(),
+        TimeRemainingColumn(compact=True),
+        TextColumn("{task.fields[avg_sec_per_it]:>6.2f} s/it"),
+    )
+    progress.start()
+    task_id = progress.add_task(
+        "Collecting Metadata", total=len(paper_entries), avg_sec_per_it=0
+    )
+    for entry in paper_entries:
         title_url_list = get_paper_title_and_url(entry)
         bibtex_str = get_paper_bibtex(bibtex_session, entry, req_itv)
         entry_metadata_list.append(title_url_list + [bibtex_str])
+
+        # set speed display
+        task_fields = progress.tasks[task_id]
+        avg_speed = (
+            task_fields.elapsed / (task_fields.completed + 1)
+            if task_fields.elapsed
+            else 0
+        )
+        progress.update(task_id, advance=1, avg_sec_per_it=avg_speed)
+    progress.stop()
 
     bibtex_session.close()
 
     return entry_metadata_list
 
 
-if __name__ == "__main__":
-    metadata_list = get_dblp_page_content(get_conf_url("sp", str(2023))[0], 5, "conf")
-    # print(title_url_lst)
+# if __name__ == "__main__":
+#     logger.setLevel(logging.DEBUG)
+#     handler = logging.StreamHandler()
+#     handler.setLevel(logging.DEBUG)
+#     formatter = logging.Formatter(
+#         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+#     )
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+#     metadata_list = get_dblp_page_content(get_conf_url("sp", str(2023))[0], 5, "conf")
