@@ -116,7 +116,7 @@ def collect_conf_metadata(*, entry: ConferenceObj):
             pickle.dump(entry_metadata_list, f)
 
     if entry.need_abs:
-        asyncio.run(
+        nd.loop().run_until_complete(
             collect_abstract(
                 entry.name,
                 entry_metadata_list,
@@ -146,7 +146,7 @@ def collect_journal_metadata(*, entry: JournalObj) -> list:
             pickle.dump(entry_metadata_list, f)
 
     if entry.need_abs:
-        asyncio.run(
+        nd.loop().run_until_complete(
             collect_abstract(
                 entry.name,
                 entry_metadata_list,
@@ -318,7 +318,7 @@ def collect_abstract_from_dblp_pkl(*, entry: JournalObj | ConferenceObj):
 
     with open(entry.from_pkl, "rb") as f:
         entry_metadata_list = pickle.load(f)
-    asyncio.run(
+    nd.loop().run_until_complete(
         collect_abstract(
             entry.name,
             entry_metadata_list,
