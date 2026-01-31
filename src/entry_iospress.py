@@ -3,7 +3,7 @@ from time import sleep
 from urllib.parse import urlparse
 
 import requests
-import zendriver as zd
+import nodriver as nd
 from bs4 import BeautifulSoup
 
 from src.request_wrap import make_request, retry_async
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @retry_async
-async def get_abs_impl(url: str, driver: zd.Browser) -> str:
+async def get_abs_impl(url: str, driver: nd.Browser) -> str:
     button_css_selector = "button[id='onetrust-reject-all-handler']"
     css_selector = "section[id='abstract'] > div[role='paragraph']"
 
@@ -33,7 +33,7 @@ async def get_abs_impl(url: str, driver: zd.Browser) -> str:
 
 
 async def get_full_abstract(
-    abs_session: requests.Session, url: str, req_itv: float, driver: zd.Browser
+    abs_session: requests.Session, url: str, req_itv: float, driver: nd.Browser
 ) -> str | None:
     abstract = None
 

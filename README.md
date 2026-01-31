@@ -82,7 +82,7 @@ uv run ./main.py -n tifs -u 16-18 -e -d 5 -t 8
 ### 人机验证与爬取失败
 
 1. 首先需要保证使用的 IP 具有较高纯净度。
-2. 将 Zendriver 的 `headless` 参数设置为 `False`，相比 `True` 的成功率更高。
+2. 将 Nodriver 的 `headless` 参数设置为 `False`，相比 `True` 的成功率更高。
 3. 删除 `settings.py` 中，`cookie_path` 变量指定的目录下的所有文件，重新运行。
 
 ### 部分条目解析失败

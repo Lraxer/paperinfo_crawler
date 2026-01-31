@@ -44,12 +44,9 @@ def retry_async(func):
                 return result
             except Exception as e:
                 if time < 3:
-                    # ProtocolException seems to be a known issue, see
-                    # https://github.com/stephanlensky/zendriver/issues/76
                     logger.warning(
                         f"Cannot access {args[0]} . Exception: {e.__class__.__name__} Retry {time + 1}/3 after {retry_interval} sec."
                     )
-                    # logger.warning(f"{repr(e)}")
                     sleep(retry_interval)
         return None
 

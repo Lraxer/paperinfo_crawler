@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "beautifulsoup4>=4.14.3",
     "bibtexparser==2.0.0b9",
+    "nodriver>=0.48.1",
     "requests>=2.32.5",
     "rich>=14.3.1",
-    "zendriver>=0.15.2",
 ]

@@ -8,8 +8,8 @@ import bibtexparser
 import bibtexparser.entrypoint
 import bibtexparser.library
 import bibtexparser.model
+import nodriver as nd
 import requests
-import zendriver as zd
 from rich.logging import RichHandler
 from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
                            TaskProgressColumn, TextColumn, TimeElapsedColumn,
@@ -51,8 +51,8 @@ def setup_logging():
     # 显式开启本项目代码的 DEBUG 日志
     logging.getLogger("src").setLevel(logging.DEBUG)
     logging.getLogger("__main__").setLevel(logging.DEBUG)
-    # 屏蔽 zendriver 的低级别日志
-    # logging.getLogger("zendriver").setLevel(logging.WARNING)
+    # 屏蔽 nodriver 的低级别日志
+    # logging.getLogger("nodriver").setLevel(logging.WARNING)
 
 
 setup_logging()
@@ -241,12 +241,13 @@ async def collect_abstract(
 
     match publisher:
         case "ieee":
-            browser_config = zd.Config(
+            browser_config = nd.Config(
                 headless=True,
                 user_data_dir=cookie_path,
                 browser_executable_path=chrome_path,
+                browser_args=["--disable-gpu"],
             )
-            browser = await zd.start(config=browser_config)
+            browser = await nd.start(config=browser_config)
             library = await collect_abstract_impl(
                 entry_ieee,
                 library,
@@ -255,14 +256,15 @@ async def collect_abstract(
                 req_itv=req_itv,
                 driver=browser,
             )
-            await browser.stop()
+            browser.stop()
         case "elsevier" | "iospress" | "acm":
-            browser_config = zd.Config(
+            browser_config = nd.Config(
                 headless=False,
                 user_data_dir=cookie_path,
                 browser_executable_path=chrome_path,
+                browser_args=["--disable-gpu"],
             )
-            browser = await zd.start(config=browser_config)
+            browser = await nd.start(config=browser_config)
             if publisher == "elsevier":
                 library = await collect_abstract_impl(
                     entry_elsevier,
@@ -290,7 +292,7 @@ async def collect_abstract(
                     req_itv=req_itv,
                     driver=browser,
                 )
-            await browser.stop()
+            browser.stop()
         case _:
             selected_module = publisher_module_dict.get(publisher)
             if selected_module is not None:

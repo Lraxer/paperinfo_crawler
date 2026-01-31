@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 
-import zendriver as zd
+import nodriver as nd
 
 from src.request_wrap import retry_async
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @retry_async
-async def get_abs_impl(url: str, driver: zd.Browser) -> str:
+async def get_abs_impl(url: str, driver: nd.Browser) -> str:
     # "Show More" button of abstract
     button_css_selector = "a.abstract-text-view-all"
     css_selector = "div[xplmathjax]"
@@ -30,7 +30,7 @@ async def get_abs_impl(url: str, driver: zd.Browser) -> str:
     return abstract
 
 
-async def get_full_abstract(url: str, driver: zd.Browser, req_itv: float) -> str | None:
+async def get_full_abstract(url: str, driver: nd.Browser, req_itv: float) -> str | None:
     if url == "":
         return None
 
