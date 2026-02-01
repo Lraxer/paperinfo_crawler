@@ -242,7 +242,7 @@ async def collect_abstract(
     match publisher:
         case "ieee":
             browser_config = nd.Config(
-                headless=True,
+                headless=False,
                 user_data_dir=cookie_path,
                 browser_executable_path=chrome_path,
                 browser_args=["--disable-gpu"],
