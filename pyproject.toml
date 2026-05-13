@@ -11,3 +11,8 @@ dependencies = [
     "requests>=2.32.5",
     "rich>=14.3.1",
 ]
+
+[dependency-groups]
+dev = [
+    "isort>=8.0.1",
+]
