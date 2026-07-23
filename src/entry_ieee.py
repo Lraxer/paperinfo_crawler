@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from time import sleep
 
@@ -23,8 +24,6 @@ async def get_abs_impl(url: str, driver: nd.Browser) -> str:
         show_more_button = await tab.select(button_css_selector)
         await show_more_button.click()
 
-    await tab.get_content()
-
     abs_elem = await tab.select(css_selector)
     abstract = abs_elem.text_all
     return abstract
@@ -34,33 +33,6 @@ async def get_full_abstract(url: str, driver: nd.Browser, req_itv: float) -> str
     if url == "":
         return None
 
-    sleep(req_itv)
+    await asyncio.sleep(req_itv)
     abstract = await get_abs_impl(url, driver)
     return abstract
-
-
-# async def main():
-#     config = zd.Config(
-#         headless=True,
-#         user_data_dir=cookie_path,
-#         browser_executable_path=chrome_path,
-#     )
-
-#     browser = await zd.start(config=config)
-#     abstract = await get_full_abstract(
-#         "https://doi.org/10.1109/TDSC.2021.3129512", browser, 0
-#     )
-#     await browser.stop()
-#     print(abstract)
-
-
-# if __name__ == "__main__":
-#     logger.setLevel(logging.DEBUG)
-#     handler = logging.StreamHandler()
-#     handler.setLevel(logging.DEBUG)
-#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-#     handler.setFormatter(formatter)
-#     logger.addHandler(handler)
-#     import asyncio
-#     from settings import cookie_path, chrome_path
-#     asyncio.run(main())

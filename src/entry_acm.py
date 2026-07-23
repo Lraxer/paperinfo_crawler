@@ -25,7 +25,6 @@ async def get_abs_impl(url: str, driver: nd.Browser) -> str:
         # some papers use a different abstract css selector
         css_selector = basic_css_selector
         await tab.wait_for(selector=css_selector, timeout=5)
-    await tab.get_content()
 
     abs_elems = await tab.select_all(css_selector)
     abstract = " ".join(abs_elem.text_all for abs_elem in abs_elems)

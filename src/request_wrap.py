@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from time import sleep
 
@@ -43,11 +44,12 @@ def retry_async(func):
                 result = await func(*args, **kwargs)
                 return result
             except Exception as e:
+                print(e)
                 if time < 3:
                     logger.warning(
                         f"Cannot access {args[0]} . Exception: {e.__class__.__name__} Retry {time + 1}/3 after {retry_interval} sec."
                     )
-                    sleep(retry_interval)
+                    await asyncio.sleep(retry_interval)
         return None
 
     return wrap

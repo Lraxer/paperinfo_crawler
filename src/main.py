@@ -257,6 +257,8 @@ async def collect_abstract(
                 driver=browser,
             )
             browser.stop()
+            # chrome may crash because of the implementation of stop() method
+            await asyncio.sleep(1)
         case "elsevier" | "iospress" | "acm":
             browser_config = nd.Config(
                 headless=False,
@@ -293,6 +295,7 @@ async def collect_abstract(
                     driver=browser,
                 )
             browser.stop()
+            await asyncio.sleep(1)
         case _:
             selected_module = publisher_module_dict.get(publisher)
             if selected_module is not None:

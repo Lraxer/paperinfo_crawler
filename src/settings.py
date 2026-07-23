@@ -31,7 +31,7 @@ cj_pub_dict = {
     "icde": "ieee",
     "icnp": "ieee",
     "iwqos": "ieee",
-    "acsac": "acm",
+    "acsac": "ieee",
     "ccs": "acm",
     "kdd": "acm",
     "sigir": "acm",
@@ -76,6 +76,7 @@ cj_pub_dict = {
 pub_cj_dict = {
     "ieee": {
         "sp",
+        "acsac",
         "csfw",
         "dsn",
         "eurosp",
@@ -94,7 +95,6 @@ pub_cj_dict = {
         "iwqos",
     },
     "acm": {
-        "acsac",
         "ccs",
         "mobicom",
         "kdd",
